@@ -17,6 +17,8 @@ Bu proje iki Flutter uygulamasından oluşmaktadır:
 - **rpi_eyes** - Raspberry Pi üzerinde çalışan ve çift ST7789 SPI ekranlara animasyonlu robot gözleri renderlayan göz görüntüleme uygulaması
 - **rpi_eyes_control** - WebSocket üzerinden göz uygulamasına bağlanarak duyguları ve bakış yönünü kontrol eden kontrol uygulaması (masaüstü/mobil)
 
+![Kontrol Uygulaması](docs/control-app.jpg)
+
 ## Özellikler
 
 - 9 duygu durumu: idle (boşta), curious (meraklı), happy (mutlu), angry (kızgın), frightened (korkmuş), sad (üzgün), joyful (neşeli), bored (sıkılmış), friendly (arkadaş canlısı)

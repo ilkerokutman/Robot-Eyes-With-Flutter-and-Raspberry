@@ -18,6 +18,8 @@ This project consists of two Flutter applications:
 - **rpi_eyes** - The eyes display application that runs on a Raspberry Pi and renders animated robot eyes to dual ST7789 SPI displays
 - **rpi_eyes_control** - A control application (desktop/mobile) that connects to the eyes app via WebSocket to control emotions and gaze direction
 
+![Control App](docs/control-app.jpg)
+
 ## Features
 
 - 9 emotion states: idle, curious, happy, angry, frightened, sad, joyful, bored, friendly
