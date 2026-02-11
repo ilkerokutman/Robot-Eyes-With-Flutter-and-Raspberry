@@ -7,9 +7,9 @@ A Flutter-based robot eyes display system for Raspberry Pi with ST7789 SPI displ
 
 ## Demo Videos
 
-https://github.com/ilkerokutman/Robot-Eyes-With-Flutter-and-Raspberry/raw/main/docs/video1.mp4
+[![Demo Video 1](https://img.youtube.com/vi/yt5mXC8gClE/0.jpg)](https://youtube.com/shorts/yt5mXC8gClE)
 
-https://github.com/ilkerokutman/Robot-Eyes-With-Flutter-and-Raspberry/raw/main/docs/video2.mp4
+[![Demo Video 2](https://img.youtube.com/vi/3ZRi2_EnEjg/0.jpg)](https://youtube.com/shorts/3ZRi2_EnEjg)
 
 ## Overview
 
