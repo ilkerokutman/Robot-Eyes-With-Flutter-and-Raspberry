@@ -6,9 +6,9 @@ Raspberry Pi için ST7789 SPI ekranlarla Flutter tabanlı robot göz görüntül
 
 ## Demo Videoları
 
-<video src="docs/video1.mp4" controls width="400"></video>
+https://github.com/ilkerokutman/Robot-Eyes-With-Flutter-and-Raspberry/raw/main/docs/video1.mp4
 
-<video src="docs/video2.mp4" controls width="400"></video>
+https://github.com/ilkerokutman/Robot-Eyes-With-Flutter-and-Raspberry/raw/main/docs/video2.mp4
 
 ## Genel Bakış
 
