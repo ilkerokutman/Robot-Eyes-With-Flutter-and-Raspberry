@@ -1,6 +1,6 @@
+import 'dart:typed_data';
 import 'dart:ui' as ui;
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 
 import 'package:rpi_eyes/drivers/display_config.dart';
@@ -18,13 +18,13 @@ class DisplayManager {
   Future<void> initialize() async {
     if (_initialized) return;
 
-    debugPrint('Initializing left display (CE${leftDriver.chipSelect})...');
+    print('Initializing left display (CE${leftDriver.chipSelect})...');
     await leftDriver.initialize();
-    debugPrint('Left display initialized');
+    print('Left display initialized');
 
-    debugPrint('Initializing right display (CE${rightDriver.chipSelect})...');
+    print('Initializing right display (CE${rightDriver.chipSelect})...');
     await rightDriver.initialize(skipReset: true);
-    debugPrint('Right display initialized');
+    print('Right display initialized');
 
     _initialized = true;
   }

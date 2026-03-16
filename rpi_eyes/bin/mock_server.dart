@@ -3,8 +3,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
-import 'package:flutter/foundation.dart';
-
 final emotions = [
   'idle',
   'curious',
@@ -19,13 +17,13 @@ final emotions = [
 
 void main() async {
   final server = await HttpServer.bind('127.0.0.1', 5000);
-  debugPrint('Mock WebSocket server running on ws://127.0.0.1:5000');
-  debugPrint('Sending random emotion/gaze data every 3 seconds...');
+  print('Mock WebSocket server running on ws://127.0.0.1:5000');
+  print('Sending random emotion/gaze data every 3 seconds...');
 
   await for (final request in server) {
     if (WebSocketTransformer.isUpgradeRequest(request)) {
       final socket = await WebSocketTransformer.upgrade(request);
-      debugPrint('Client connected');
+      print('Client connected');
       _handleClient(socket);
     } else {
       request.response
@@ -52,18 +50,18 @@ void _handleClient(WebSocket socket) {
     };
 
     final json = jsonEncode(data);
-    debugPrint('Sending: $json');
+    print('Sending: $json');
     socket.add(json);
   });
 
   socket.listen(
-    (message) => debugPrint('Received: $message'),
+    (message) => print('Received: $message'),
     onDone: () {
-      debugPrint('Client disconnected');
+      print('Client disconnected');
       timer.cancel();
     },
     onError: (error) {
-      debugPrint('Error: $error');
+      print('Error: $error');
       timer.cancel();
     },
   );

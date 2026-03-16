@@ -10,10 +10,10 @@ void main() async {
 
   try {
     final piVersion = DisplayConfig.isPi5 ? 'Pi 5' : 'Pi 4/earlier';
-    debugPrint(
+    print(
       'Detected: Raspberry $piVersion (GPIO chip ${DisplayConfig.gpioChip})',
     );
-    debugPrint('Initializing SPI displays...');
+    print('Initializing SPI displays...');
 
     final displayManager = DisplayManager(
       leftDriver: RealSt7789Driver(
@@ -28,9 +28,9 @@ void main() async {
       ),
     );
 
-    debugPrint('Initializing display manager...');
+    print('Initializing display manager...');
     await displayManager.initialize();
-    debugPrint('Display manager initialized successfully');
+    print('Display manager initialized successfully');
 
     runApp(
       MaterialApp(
@@ -39,7 +39,7 @@ void main() async {
       ),
     );
   } catch (e, stackTrace) {
-    debugPrint('ERROR: $e');
-    debugPrint('Stack trace:\n$stackTrace');
+    print('ERROR: $e');
+    print('Stack trace:\n$stackTrace');
   }
 }
