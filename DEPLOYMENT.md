@@ -28,7 +28,7 @@ Automated deployment script that handles the entire build and deployment pipelin
 Deploys `pi5-support` branch to:
 - Build Server: `pi@192.168.0.70`
 - Target Pi: `pi@192.168.0.116`
-- Version: `1.0.0`
+- Version: Auto-parsed from `rpi_eyes/pubspec.yaml`
 
 ### Custom Branch
 
@@ -36,11 +36,15 @@ Deploys `pi5-support` branch to:
 ./deploy.sh -b main
 ```
 
-### Custom Version
+Version is automatically parsed from pubspec.yaml.
+
+### Override Version
 
 ```bash
 ./deploy.sh -v 2.0.0
 ```
+
+Useful if you want to use a different version number than what's in pubspec.yaml.
 
 ### Custom Build Server
 
@@ -68,6 +72,12 @@ Deploys `pi5-support` branch to:
 
 ## What the Script Does
 
+### Step 0: Parse Version (macOS)
+- Reads `rpi_eyes/pubspec.yaml`
+- Extracts version from `version:` field
+- Uses parsed version for artifacts folder naming
+- Can be overridden with `-v` flag if needed
+
 ### Step 1: Commit & Sync (macOS)
 - Checks for uncommitted changes
 - Stages all changes with `git add -A`
@@ -87,7 +97,7 @@ Deploys `pi5-support` branch to:
 - Waits for build completion
 
 ### Step 4: Copy to Workspace (macOS)
-- Creates versioned artifacts folder: `artifacts/rpi_eyes_VERSION/`
+- Creates versioned artifacts folder: `artifacts/rpi_eyes_VERSION/` (VERSION from pubspec.yaml)
 - SCPs built bundle from build server
 - Reorganizes folder structure if needed
 - Stores in workspace for local backup
@@ -100,6 +110,9 @@ Deploys `pi5-support` branch to:
 ## Output Example
 
 ```
+Parsing version from pubspec.yaml...
+✓ Version parsed: 1.0.0
+
 ========================================
 Robot Eyes Deployment Configuration
 ========================================
@@ -128,7 +141,7 @@ Workspace:        /Volumes/E4/DevTest/FlutterProjects/ilker/eyes
 ========================================
 ✓ Deployment Complete!
 ========================================
-Version:          1.0.0
+Version:          1.0.0 (from pubspec.yaml)
 Branch:           pi5-support
 Artifacts:        /Volumes/E4/DevTest/FlutterProjects/ilker/eyes/artifacts/rpi_eyes_1.0.0
 Deployed to:      pi@192.168.0.116:/opt/eyes/rpi_eyes
@@ -261,5 +274,7 @@ BRANCH="pi5-support"
 BUILD_SERVER_IP="192.168.0.70"
 TARGET_PI_IP="192.168.0.116"
 SSH_USER="pi"
-VERSION="1.0.0"
+PROJECT_NAME="rpi_eyes"
 ```
+
+Version is automatically parsed from `rpi_eyes/pubspec.yaml` and can be overridden with the `-v` flag.
