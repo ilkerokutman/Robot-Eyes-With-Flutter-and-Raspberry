@@ -145,12 +145,14 @@ echo ""
 # Step 4: Copy bundle to workspace artifacts
 echo -e "${YELLOW}[4/5] Copying bundle to workspace artifacts...${NC}"
 ARTIFACTS_DIR="$SCRIPT_DIR/artifacts/${PROJECT_NAME}_${VERSION}"
-mkdir -p "$ARTIFACTS_DIR"
 
-# Remove old bundle structure if exists
-if [[ -d "$ARTIFACTS_DIR/bundle" ]]; then
-  rm -rf "$ARTIFACTS_DIR/bundle"
+# Remove existing artifacts directory if it exists
+if [[ -d "$ARTIFACTS_DIR" ]]; then
+  echo "Removing existing artifacts directory..."
+  rm -rf "$ARTIFACTS_DIR"
 fi
+
+mkdir -p "$ARTIFACTS_DIR"
 
 # Copy from build server
 echo "Downloading build artifacts from build server..."
