@@ -66,8 +66,10 @@ class _HomeSpiScreenState extends State<HomeSpiScreen> {
           rightBoundary,
         );
       }
-    } catch (e) {
-      // Silently ignore rendering errors
+    } catch (e, st) {
+      print('ERROR in _captureAndSend: $e');
+      print('Stack trace: $st');
+      rethrow;
     }
   }
 

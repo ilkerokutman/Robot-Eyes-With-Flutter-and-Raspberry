@@ -44,8 +44,10 @@ class DisplayManager {
 
       leftImage.dispose();
       rightImage.dispose();
-    } catch (e) {
-      // Silently ignore rendering errors
+    } catch (e, st) {
+      print('ERROR in drawFromRenderObjects: $e');
+      print('Stack trace: $st');
+      rethrow;
     }
   }
 
