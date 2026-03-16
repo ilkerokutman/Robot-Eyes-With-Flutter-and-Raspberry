@@ -40,7 +40,6 @@ class _HomeSpiScreenState extends State<HomeSpiScreen> {
   }
 
   void _startRenderLoop() {
-    print('Starting render loop - will capture every 50ms');
     _renderTimer = Timer.periodic(
       const Duration(milliseconds: 50),
       (_) => _captureAndSend(),
@@ -66,14 +65,9 @@ class _HomeSpiScreenState extends State<HomeSpiScreen> {
           leftBoundary,
           rightBoundary,
         );
-      } else {
-        print(
-          'WARNING: Render boundaries are null - left: $leftBoundary, right: $rightBoundary',
-        );
       }
-    } catch (e, stackTrace) {
-      print('ERROR in _captureAndSend: $e');
-      print('Stack trace: $stackTrace');
+    } catch (e) {
+      // Silently ignore rendering errors
     }
   }
 

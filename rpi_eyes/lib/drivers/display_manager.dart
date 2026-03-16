@@ -18,16 +18,8 @@ class DisplayManager {
   Future<void> initialize() async {
     if (_initialized) return;
 
-    print('========================================');
-    print('Robot Eyes v1.0.0');
-    print('========================================');
-    print('Initializing left display (CE${leftDriver.chipSelect})...');
     await leftDriver.initialize();
-    print('Left display initialized');
-
-    print('Initializing right display (CE${rightDriver.chipSelect})...');
     await rightDriver.initialize(skipReset: true);
-    print('Right display initialized');
 
     _initialized = true;
   }
@@ -37,10 +29,6 @@ class DisplayManager {
     RenderRepaintBoundary rightBoundary,
   ) async {
     try {
-      print(
-        'Drawing from render objects - left size: ${leftBoundary.size}, right size: ${rightBoundary.size}',
-      );
-
       final leftImage = await leftBoundary.toImage(
         pixelRatio: DisplayConfig.width / leftBoundary.size.width,
       );
@@ -48,27 +36,16 @@ class DisplayManager {
         pixelRatio: DisplayConfig.width / rightBoundary.size.width,
       );
 
-      print(
-        'Images captured - left: ${leftImage.width}x${leftImage.height}, right: ${rightImage.width}x${rightImage.height}',
-      );
-
       final leftBytes = await _imageToRgb565(leftImage);
       final rightBytes = await _imageToRgb565(rightImage);
-
-      print(
-        'Converting to RGB565 - left: ${leftBytes.length} bytes, right: ${rightBytes.length} bytes',
-      );
 
       leftDriver.drawBuffer(leftBytes);
       rightDriver.drawBuffer(rightBytes);
 
-      print('Pixel data sent to SPI displays');
-
       leftImage.dispose();
       rightImage.dispose();
-    } catch (e, stackTrace) {
-      print('ERROR in drawFromRenderObjects: $e');
-      print('Stack trace: $stackTrace');
+    } catch (e) {
+      // Silently ignore rendering errors
     }
   }
 
