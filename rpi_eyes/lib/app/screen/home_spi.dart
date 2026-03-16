@@ -40,6 +40,7 @@ class _HomeSpiScreenState extends State<HomeSpiScreen> {
   }
 
   void _startRenderLoop() {
+    print('Render loop started - capturing every 50ms');
     _renderTimer = Timer.periodic(
       const Duration(milliseconds: 50),
       (_) => _captureAndSend(),
@@ -61,9 +62,14 @@ class _HomeSpiScreenState extends State<HomeSpiScreen> {
       final rightBoundary = rightCapture.renderBoundary;
 
       if (leftBoundary != null && rightBoundary != null) {
+        print('Rendering to SPI displays...');
         await widget.displayManager.drawFromRenderObjects(
           leftBoundary,
           rightBoundary,
+        );
+      } else {
+        print(
+          'WARNING: Render boundaries null - left: $leftBoundary, right: $rightBoundary',
         );
       }
     } catch (e, st) {
