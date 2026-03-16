@@ -53,17 +53,26 @@ class _HomeSpiScreenState extends State<HomeSpiScreen> {
   }
 
   Future<void> _captureAndSend() async {
-    final leftCapture = PixelCapture(boundaryKey: _leftEyeKey);
-    final rightCapture = PixelCapture(boundaryKey: _rightEyeKey);
+    try {
+      final leftCapture = PixelCapture(boundaryKey: _leftEyeKey);
+      final rightCapture = PixelCapture(boundaryKey: _rightEyeKey);
 
-    final leftBoundary = leftCapture.renderBoundary;
-    final rightBoundary = rightCapture.renderBoundary;
+      final leftBoundary = leftCapture.renderBoundary;
+      final rightBoundary = rightCapture.renderBoundary;
 
-    if (leftBoundary != null && rightBoundary != null) {
-      await widget.displayManager.drawFromRenderObjects(
-        leftBoundary,
-        rightBoundary,
-      );
+      if (leftBoundary != null && rightBoundary != null) {
+        await widget.displayManager.drawFromRenderObjects(
+          leftBoundary,
+          rightBoundary,
+        );
+      } else {
+        print(
+          'WARNING: Render boundaries are null - left: $leftBoundary, right: $rightBoundary',
+        );
+      }
+    } catch (e, stackTrace) {
+      print('ERROR in _captureAndSend: $e');
+      print('Stack trace: $stackTrace');
     }
   }
 

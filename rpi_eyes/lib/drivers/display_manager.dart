@@ -36,21 +36,40 @@ class DisplayManager {
     RenderRepaintBoundary leftBoundary,
     RenderRepaintBoundary rightBoundary,
   ) async {
-    final leftImage = await leftBoundary.toImage(
-      pixelRatio: DisplayConfig.width / leftBoundary.size.width,
-    );
-    final rightImage = await rightBoundary.toImage(
-      pixelRatio: DisplayConfig.width / rightBoundary.size.width,
-    );
+    try {
+      print(
+        'Drawing from render objects - left size: ${leftBoundary.size}, right size: ${rightBoundary.size}',
+      );
 
-    final leftBytes = await _imageToRgb565(leftImage);
-    final rightBytes = await _imageToRgb565(rightImage);
+      final leftImage = await leftBoundary.toImage(
+        pixelRatio: DisplayConfig.width / leftBoundary.size.width,
+      );
+      final rightImage = await rightBoundary.toImage(
+        pixelRatio: DisplayConfig.width / rightBoundary.size.width,
+      );
 
-    leftDriver.drawBuffer(leftBytes);
-    rightDriver.drawBuffer(rightBytes);
+      print(
+        'Images captured - left: ${leftImage.width}x${leftImage.height}, right: ${rightImage.width}x${rightImage.height}',
+      );
 
-    leftImage.dispose();
-    rightImage.dispose();
+      final leftBytes = await _imageToRgb565(leftImage);
+      final rightBytes = await _imageToRgb565(rightImage);
+
+      print(
+        'Converting to RGB565 - left: ${leftBytes.length} bytes, right: ${rightBytes.length} bytes',
+      );
+
+      leftDriver.drawBuffer(leftBytes);
+      rightDriver.drawBuffer(rightBytes);
+
+      print('Pixel data sent to SPI displays');
+
+      leftImage.dispose();
+      rightImage.dispose();
+    } catch (e, stackTrace) {
+      print('ERROR in drawFromRenderObjects: $e');
+      print('Stack trace: $stackTrace');
+    }
   }
 
   Future<void> drawFromImages(ui.Image leftImage, ui.Image rightImage) async {
