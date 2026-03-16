@@ -65,8 +65,9 @@ Future<void> _runRaspberryPi() async {
       );
       await displayManager.initialize();
       spiAvailable = true;
-    } catch (e) {
+    } catch (e, st) {
       // SPI initialization failed - continue with HDMI only
+      print('SPI init error: $e\n$st');
       spiAvailable = false;
       displayManager = null;
     }
