@@ -21,16 +21,10 @@ class DisplayConfig {
   // Reset: Pin 22 = GPIO 25 (shared)
   static const int resetPin = 25;
 
-  /// GPIO chip number - differs between Pi 4 and Pi 5
-  /// Pi 4: chip 0 (/dev/gpiochip0)
-  /// Pi 5: chip 4 (/dev/gpiochip4 - RP1 controller)
-  static int get gpioChip {
-    if (File('/dev/gpiochip4').existsSync()) {
-      return 4; // Pi 5
-    }
-    return 0; // Pi 4 and earlier
-  }
+  /// GPIO chip number - on Pi 5, gpiochip4 is a symlink to gpiochip0
+  /// Both Pi 4 and Pi 5 use chip 0 for main GPIO
+  static const int gpioChip = 0;
 
-  /// Check if running on Pi 5
-  static bool get isPi5 => File('/dev/gpiochip4').existsSync();
+  /// Check if running on Pi 5 by looking for RP1 GPIO chips
+  static bool get isPi5 => File('/dev/gpiochip10').existsSync();
 }
