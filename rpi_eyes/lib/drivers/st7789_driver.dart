@@ -61,12 +61,16 @@ abstract class St7789Driver {
   }
 
   Future<void> _hardwareReset() async {
+    print('    Reset pin high');
     resetGpio.write(true);
     await Future<void>.delayed(const Duration(milliseconds: 50));
+    print('    Reset pin low');
     resetGpio.write(false);
     await Future<void>.delayed(const Duration(milliseconds: 50));
+    print('    Reset pin high again');
     resetGpio.write(true);
     await Future<void>.delayed(const Duration(milliseconds: 150));
+    print('    Reset complete');
   }
 
   Future<void> _initSequence() async {
