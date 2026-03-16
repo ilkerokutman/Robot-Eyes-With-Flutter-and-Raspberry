@@ -40,6 +40,7 @@ class _HomeSpiScreenState extends State<HomeSpiScreen> {
   }
 
   void _startRenderLoop() {
+    print('Starting render loop - will capture every 50ms');
     _renderTimer = Timer.periodic(
       const Duration(milliseconds: 50),
       (_) => _captureAndSend(),
