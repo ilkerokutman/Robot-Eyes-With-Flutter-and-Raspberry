@@ -135,7 +135,7 @@ echo ""
 
 # Step 3: Trigger build on build server
 echo -e "${YELLOW}[3/5] Building on build server...${NC}"
-ssh "${SSH_USER}@${BUILD_SERVER_IP}" "cd ~/Robot-Eyes-With-Flutter-and-Raspberry/${PROJECT_NAME} && rm -rf build .dart_tool && /opt/flutter/bin/flutter clean && /opt/flutter/bin/flutter pub get && /opt/flutter/bin/flutter build linux --release -t lib/main_spi.dart" || {
+ssh "${SSH_USER}@${BUILD_SERVER_IP}" "cd ~/Robot-Eyes-With-Flutter-and-Raspberry/${PROJECT_NAME} && rm -rf build .dart_tool && /opt/flutter/bin/flutter clean && /opt/flutter/bin/flutter pub get && /opt/flutter/bin/flutter build linux --release" || {
   echo -e "${RED}✗ Build failed on build server${NC}"
   exit 1
 }
