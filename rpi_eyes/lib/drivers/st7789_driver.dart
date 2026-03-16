@@ -109,6 +109,10 @@ abstract class St7789Driver {
       throw StateError('Driver not initialized. Call initialize() first.');
     }
 
+    print(
+      'drawBuffer called - CS: $chipSelect, buffer size: ${rgb565Buffer.length}',
+    );
+
     _setWindow(0, 0, DisplayConfig.width - 1, DisplayConfig.height - 1);
 
     dcGpio.write(false);
@@ -126,6 +130,7 @@ abstract class St7789Driver {
       final chunk = rgb565Buffer.sublist(offset, end);
       spi.write(chunk);
     }
+    print('drawBuffer completed - CS: $chipSelect');
   }
 
   void dispose() {
