@@ -1,7 +1,7 @@
 name: rpi_eyes_control
-description: "A new Flutter project."
+description: "Cross-platform control app for Robot Eyes with WebSocket and UDP discovery."
 publish_to: 'none'
-version: 0.1.0
+version: 1.0.0
 
 environment:
   sdk: ^3.10.8
