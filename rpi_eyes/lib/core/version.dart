@@ -3,7 +3,7 @@ class AppVersion {
   AppVersion._();
 
   /// Major version - incremented for incompatible API changes
-  static const int major = 1;
+  static const int major = 2;
 
   /// Minor version - incremented for backwards-compatible functionality additions
   static const int minor = 0;
