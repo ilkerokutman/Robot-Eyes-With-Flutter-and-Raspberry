@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 import 'package:rpi_eyes/app/screen/home_spi.dart';
@@ -10,9 +12,9 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   try {
-    print('========================================');
-    print(AppVersion.display);
-    print('========================================');
+    stderr.writeln('========================================');
+    stderr.writeln(AppVersion.display);
+    stderr.writeln('========================================');
     final piVersion = DisplayConfig.isPi5 ? 'Pi 5' : 'Pi 4/earlier';
     print(
       'Detected: Raspberry $piVersion (GPIO chip ${DisplayConfig.gpioChip})',
