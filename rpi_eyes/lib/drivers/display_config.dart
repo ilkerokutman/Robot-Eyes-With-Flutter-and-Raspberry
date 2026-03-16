@@ -8,7 +8,8 @@ class DisplayConfig {
   static const int bytesPerPixel = 2;
   static const int bufferSize = width * height * bytesPerPixel;
 
-  static const int spiSpeedHz = 40000000;
+  // Pi 5 may need slower SPI speed - try 20MHz instead of 40MHz
+  static const int spiSpeedHz = 20000000;
   static const int spiBus = 0;
 
   // CS: Pin 24 = CE0, Pin 26 = CE1
