@@ -47,11 +47,17 @@ abstract class St7789Driver {
   Future<void> initialize({bool skipReset = false}) async {
     if (_initialized) return;
 
+    print('Initializing display CS: $chipSelect');
     if (!skipReset) {
+      print('  Hardware reset...');
       await _hardwareReset();
+      print('  Hardware reset done');
     }
+    print('  Init sequence...');
     await _initSequence();
+    print('  Init sequence done');
     _initialized = true;
+    print('Display CS: $chipSelect initialized');
   }
 
   Future<void> _hardwareReset() async {
