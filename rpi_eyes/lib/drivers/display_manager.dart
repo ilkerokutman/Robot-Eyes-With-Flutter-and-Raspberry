@@ -18,6 +18,9 @@ class DisplayManager {
   Future<void> initialize() async {
     if (_initialized) return;
 
+    print('========================================');
+    print('Robot Eyes v1.0.0');
+    print('========================================');
     print('Initializing left display (CE${leftDriver.chipSelect})...');
     await leftDriver.initialize();
     print('Left display initialized');
