@@ -23,6 +23,8 @@ void main() async {
 }
 
 Future<void> _runDesktop() async {
+  print('Robot Eyes v${AppVersion.full} | Desktop');
+
   await windowManager.ensureInitialized();
 
   const windowOptions = WindowOptions(
