@@ -9,7 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  dart_periphery: ^0.9.6
+  dart_periphery: ^0.9.20
   web_socket_channel: ^3.0.3
   window_manager: ^0.5.1
 

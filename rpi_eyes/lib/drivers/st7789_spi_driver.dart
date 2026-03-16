@@ -54,8 +54,11 @@ class SharedGpio {
   void initialize() {
     if (_initialized) return;
 
-    _dcGpio = GPIO(DisplayConfig.dcPin, GPIOdirection.gpioDirOut);
-    _resetGpio = GPIO(DisplayConfig.resetPin, GPIOdirection.gpioDirOut);
+    // Use GPIO chip number for Pi 5 compatibility
+    // Pi 4: chip 0, Pi 5: chip 4
+    final chip = DisplayConfig.gpioChip;
+    _dcGpio = GPIO(DisplayConfig.dcPin, GPIOdirection.gpioDirOut, chip);
+    _resetGpio = GPIO(DisplayConfig.resetPin, GPIOdirection.gpioDirOut, chip);
     _initialized = true;
   }
 

@@ -9,6 +9,10 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   try {
+    final piVersion = DisplayConfig.isPi5 ? 'Pi 5' : 'Pi 4/earlier';
+    debugPrint(
+      'Detected: Raspberry $piVersion (GPIO chip ${DisplayConfig.gpioChip})',
+    );
     debugPrint('Initializing SPI displays...');
 
     final displayManager = DisplayManager(

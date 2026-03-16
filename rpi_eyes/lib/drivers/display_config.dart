@@ -1,3 +1,5 @@
+import 'dart:io';
+
 class DisplayConfig {
   const DisplayConfig._();
 
@@ -18,4 +20,17 @@ class DisplayConfig {
 
   // Reset: Pin 22 = GPIO 25 (shared)
   static const int resetPin = 25;
+
+  /// GPIO chip number - differs between Pi 4 and Pi 5
+  /// Pi 4: chip 0 (/dev/gpiochip0)
+  /// Pi 5: chip 4 (/dev/gpiochip4 - RP1 controller)
+  static int get gpioChip {
+    if (File('/dev/gpiochip4').existsSync()) {
+      return 4; // Pi 5
+    }
+    return 0; // Pi 4 and earlier
+  }
+
+  /// Check if running on Pi 5
+  static bool get isPi5 => File('/dev/gpiochip4').existsSync();
 }

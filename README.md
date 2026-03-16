@@ -33,7 +33,7 @@ This project consists of two Flutter applications:
 
 ### Display
 - 2x [0.96inch IPS ST7789 Module](https://www.lcdwiki.com/0.96inch_IPS_ST7789_Module) (240x240 resolution)
-- Raspberry Pi (tested on Pi 4/5)
+- Raspberry Pi 4 or Pi 5 (auto-detected)
 
 ### Wiring
 

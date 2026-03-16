@@ -32,7 +32,7 @@ Bu proje iki Flutter uygulamasından oluşmaktadır:
 
 ### Ekran
 - 2x [0.96 inç IPS ST7789 Modül](https://www.lcdwiki.com/0.96inch_IPS_ST7789_Module) (240x240 çözünürlük)
-- Raspberry Pi (Pi 4/5 üzerinde test edilmiştir)
+- Raspberry Pi 4 veya Pi 5 (otomatik algılanır)
 
 ### Kablolama
 
