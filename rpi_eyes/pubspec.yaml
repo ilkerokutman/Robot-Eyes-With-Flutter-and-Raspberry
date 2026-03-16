@@ -1,7 +1,7 @@
 name: rpi_eyes
 description: "ST7789 SPI display driver for Raspberry Pi with Flutter UI rendering."
 publish_to: 'none'
-version: 1.0.3
+version: 1.0.4
 
 environment:
   sdk: ^3.10.8

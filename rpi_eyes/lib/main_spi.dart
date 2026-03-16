@@ -36,6 +36,7 @@ void main() async {
     print('Initializing display manager...');
     await displayManager.initialize();
     print('Display manager initialized successfully');
+    print('Starting Flutter app...');
 
     runApp(
       MaterialApp(
@@ -43,6 +44,7 @@ void main() async {
         home: HomeSpiScreen(displayManager: displayManager),
       ),
     );
+    print('runApp() completed');
   } catch (e, stackTrace) {
     print('ERROR: $e');
     print('Stack trace:\n$stackTrace');
