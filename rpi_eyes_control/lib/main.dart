@@ -14,7 +14,7 @@ class ControlApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Eyes Control',
+      title: 'Göz Kontrol',
       debugShowCheckedModeBanner: false,
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: const Color(0xFF1A1A2E),
@@ -34,6 +34,31 @@ enum Emotion {
   joyful,
   bored,
   friendly,
+}
+
+extension EmotionTR on Emotion {
+  String get trName {
+    switch (this) {
+      case Emotion.idle:
+        return 'Boşta';
+      case Emotion.curious:
+        return 'Meraklı';
+      case Emotion.happy:
+        return 'Mutlu';
+      case Emotion.angry:
+        return 'Sinirli';
+      case Emotion.frightened:
+        return 'Korkmuş';
+      case Emotion.sad:
+        return 'Üzgün';
+      case Emotion.joyful:
+        return 'Neşeli';
+      case Emotion.bored:
+        return 'Sıkılmış';
+      case Emotion.friendly:
+        return 'Dostça';
+    }
+  }
 }
 
 class ControlScreen extends StatefulWidget {
@@ -97,13 +122,13 @@ class _ControlScreenState extends State<ControlScreen> {
                 _onServerDiscovered(json);
               }
             } catch (e) {
-              debugPrint('Discovery parse error: $e');
+              debugPrint('Keşif ayrıştırma hatası: $e');
             }
           }
         }
       });
     } catch (e) {
-      debugPrint('Failed to start discovery: $e');
+      debugPrint('Keşif başlatılamadı: $e');
     }
   }
 
@@ -136,36 +161,34 @@ class _ControlScreenState extends State<ControlScreen> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xFF1A1A2E),
-        title: const Text('Connect to Eyes'),
+        title: const Text('Gözlere Bağlan'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             if (_discoveredServers.isNotEmpty) ...[
               const Text(
-                'Discovered servers:',
+                'Bulunan sunucular:',
                 style: TextStyle(fontSize: 12, color: Colors.grey),
               ),
               const SizedBox(height: 8),
-              ..._discoveredServers.map(
-                (server) => ListTile(
-                  dense: true,
-                  title: Text(
-                    '${server['ip']}:${server['port']}',
-                    style: const TextStyle(fontSize: 14),
-                  ),
-                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                  onTap: () {
-                    _hostController.text = server['ip'] as String;
-                    _portController.text = (server['port'] as int).toString();
-                  },
-                ),
-              ),
+              ..._discoveredServers.map((server) => ListTile(
+                    dense: true,
+                    title: Text(
+                      '${server['ip']}:${server['port']}',
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                    trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                    onTap: () {
+                      _hostController.text = server['ip'] as String;
+                      _portController.text = (server['port'] as int).toString();
+                    },
+                  )),
               const Divider(),
             ],
             TextField(
               controller: _hostController,
               decoration: const InputDecoration(
-                labelText: 'Host',
+                labelText: 'Sunucu',
                 border: OutlineInputBorder(),
               ),
             ),
@@ -183,7 +206,7 @@ class _ControlScreenState extends State<ControlScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: const Text('İptal'),
           ),
           ElevatedButton(
             onPressed: _connecting
@@ -198,7 +221,7 @@ class _ControlScreenState extends State<ControlScreen> {
                     height: 20,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Text('Connect'),
+                : const Text('Bağlan'),
           ),
         ],
       ),
@@ -210,12 +233,12 @@ class _ControlScreenState extends State<ControlScreen> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xFF1A1A2E),
-        title: const Text('Disconnect?'),
-        content: const Text('Do you want to disconnect from the eyes?'),
+        title: const Text('Bağlantıyı Kes?'),
+        content: const Text('Gözlerden bağlantıyı kesmek istiyor musunuz?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: const Text('İptal'),
           ),
           ElevatedButton(
             onPressed: () {
@@ -223,7 +246,7 @@ class _ControlScreenState extends State<ControlScreen> {
               _disconnect();
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Disconnect'),
+            child: const Text('Bağlantıyı Kes'),
           ),
         ],
       ),
@@ -294,7 +317,7 @@ class _ControlScreenState extends State<ControlScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Eyes Control'),
+        title: const Text('Göz Kontrol'),
         backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
@@ -335,7 +358,7 @@ class _ControlScreenState extends State<ControlScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                'Gaze',
+                'Bakış',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               InkWell(
@@ -446,7 +469,7 @@ class _ControlScreenState extends State<ControlScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Emotion',
+            'Duygu',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
@@ -472,12 +495,11 @@ class _ControlScreenState extends State<ControlScreen> {
                     ),
                     alignment: Alignment.center,
                     child: Text(
-                      emotion.name,
+                      emotion.trName,
                       style: TextStyle(
                         fontSize: 12,
-                        fontWeight: isSelected
-                            ? FontWeight.bold
-                            : FontWeight.normal,
+                        fontWeight:
+                            isSelected ? FontWeight.bold : FontWeight.normal,
                         color: isSelected ? Colors.cyanAccent : Colors.white70,
                       ),
                     ),
