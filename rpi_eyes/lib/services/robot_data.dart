@@ -3,10 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:rpi_eyes/app/core/enums.dart';
 
 class RobotData {
-  const RobotData({
-    required this.emotion,
-    required this.gaze,
-  });
+  const RobotData({required this.emotion, required this.gaze});
 
   final Emotion emotion;
   final Alignment gaze;
@@ -22,7 +19,7 @@ class RobotData {
     final gaze = gazeJson != null
         ? Alignment(
             (gazeJson['x'] as num?)?.toDouble() ?? 0.0,
-            (gazeJson['y'] as num?)?.toDouble() ?? 0.0,
+            -((gazeJson['y'] as num?)?.toDouble() ?? 0.0),
           )
         : Alignment.center;
 
@@ -30,9 +27,9 @@ class RobotData {
   }
 
   Map<String, dynamic> toJson() => {
-        'emotion': emotion.name,
-        'gaze': {'x': gaze.x, 'y': gaze.y},
-      };
+    'emotion': emotion.name,
+    'gaze': {'x': gaze.x, 'y': gaze.y},
+  };
 
   static const RobotData idle = RobotData(
     emotion: Emotion.idle,

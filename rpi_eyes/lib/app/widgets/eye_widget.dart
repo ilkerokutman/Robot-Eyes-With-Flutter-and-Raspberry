@@ -142,15 +142,18 @@ class _EyeWidgetState extends State<EyeWidget> with TickerProviderStateMixin {
         return Center(
           child: AspectRatio(
             aspectRatio: 1,
-            child: ClipOval(
-              child: Container(
-                color: Colors.grey[900],
-                child: Stack(
-                  children: [
-                    Pupil(side: widget.side, config: config, gaze: gaze),
-                    Eyelid(isUpper: true, closedAmount: upperLid),
-                    Eyelid(isUpper: false, closedAmount: lowerLid),
-                  ],
+            child: Transform.scale(
+              scaleX: 198 / 240,
+              child: ClipOval(
+                child: Container(
+                  color: Colors.grey[900],
+                  child: Stack(
+                    children: [
+                      Pupil(side: widget.side, config: config, gaze: gaze),
+                      Eyelid(isUpper: true, closedAmount: upperLid),
+                      Eyelid(isUpper: false, closedAmount: lowerLid),
+                    ],
+                  ),
                 ),
               ),
             ),
