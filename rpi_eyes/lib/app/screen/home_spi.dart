@@ -1,15 +1,23 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 
 import 'package:rpi_eyes/app/core/enums.dart';
 import 'package:rpi_eyes/app/widgets/eye_widget.dart';
 import 'package:rpi_eyes/drivers/drivers.dart';
+import 'package:rpi_eyes/services/robot_data.dart';
 
 class HomeSpiScreen extends StatefulWidget {
-  const HomeSpiScreen({super.key, required this.displayManager});
+  const HomeSpiScreen({
+    super.key,
+    required this.displayManager,
+    this.port = 5050,
+  });
 
   final DisplayManager displayManager;
+  final int port;
 
   @override
   State<HomeSpiScreen> createState() => _HomeSpiScreenState();
@@ -17,40 +25,146 @@ class HomeSpiScreen extends StatefulWidget {
 
 class _HomeSpiScreenState extends State<HomeSpiScreen> {
   Emotion _currentEmotion = Emotion.idle;
-  final Alignment _gaze = Alignment.center;
+  Alignment _gaze = Alignment.center;
 
   final GlobalKey _leftEyeKey = GlobalKey();
   final GlobalKey _rightEyeKey = GlobalKey();
 
   Timer? _renderTimer;
-  Timer? _autoCycleTimer;
+
+  HttpServer? _server;
+  final List<WebSocket> _clients = [];
+
+  RawDatagramSocket? _udpSocket;
+  Timer? _broadcastTimer;
+  static const int _broadcastPort = 5001;
+  String? _localIp;
 
   @override
   void initState() {
     super.initState();
     _startRenderLoop();
-    _startAutoCycle();
+    _startServer();
+    _startBroadcast();
   }
 
   @override
   void dispose() {
     _renderTimer?.cancel();
-    _autoCycleTimer?.cancel();
+    _stopServer();
+    _stopBroadcast();
     super.dispose();
   }
 
   void _startRenderLoop() {
-    print('Render loop started - capturing every 50ms');
     _renderTimer = Timer.periodic(
       const Duration(milliseconds: 50),
       (_) => _captureAndSend(),
     );
   }
 
-  void _startAutoCycle() {
-    _autoCycleTimer = Timer.periodic(const Duration(seconds: 4), (_) {
-      _cycleEmotion(1);
-    });
+  Future<void> _startServer() async {
+    try {
+      _server = await HttpServer.bind('0.0.0.0', widget.port);
+      print('Eyes WebSocket server running on ws://0.0.0.0:${widget.port}');
+
+      await for (final request in _server!) {
+        if (WebSocketTransformer.isUpgradeRequest(request)) {
+          final socket = await WebSocketTransformer.upgrade(request);
+          _clients.add(socket);
+          print('Control client connected');
+          _handleClient(socket);
+        } else {
+          request.response
+            ..statusCode = HttpStatus.ok
+            ..write('Eyes WebSocket Server - Connect via ws://')
+            ..close();
+        }
+      }
+    } catch (e) {
+      print('Server error: $e');
+    }
+  }
+
+  void _handleClient(WebSocket socket) {
+    socket.listen(
+      (message) {
+        try {
+          final json = jsonDecode(message as String) as Map<String, dynamic>;
+          final data = RobotData.fromJson(json);
+          setState(() {
+            _currentEmotion = data.emotion;
+            _gaze = data.gaze;
+          });
+          print(
+            'Received command: emotion=${data.emotion.name}, gaze=${data.gaze}',
+          );
+        } catch (e) {
+          print('Parse error: $e');
+        }
+      },
+      onDone: () {
+        _clients.remove(socket);
+        print('Control client disconnected');
+      },
+      onError: (error) {
+        _clients.remove(socket);
+        print('Client error: $error');
+      },
+    );
+  }
+
+  Future<void> _stopServer() async {
+    for (final client in _clients) {
+      await client.close();
+    }
+    _clients.clear();
+    await _server?.close();
+    _server = null;
+  }
+
+  Future<void> _startBroadcast() async {
+    try {
+      final interfaces = await NetworkInterface.list();
+      for (final interface in interfaces) {
+        for (final addr in interface.addresses) {
+          if (addr.type == InternetAddressType.IPv4 &&
+              !addr.isLoopback &&
+              addr.address.startsWith('192.168.')) {
+            _localIp = addr.address;
+            break;
+          }
+        }
+      }
+
+      _udpSocket = await RawDatagramSocket.bind(InternetAddress.anyIPv4, 0);
+
+      _broadcastTimer = Timer.periodic(const Duration(seconds: 2), (_) {
+        if (_localIp == null) return;
+
+        final message = jsonEncode({
+          'service': 'rpi_eyes',
+          'ip': _localIp,
+          'port': widget.port,
+          'version': '2.0.0',
+        });
+
+        _udpSocket!.send(
+          utf8.encode(message),
+          InternetAddress('255.255.255.255'),
+          _broadcastPort,
+        );
+      });
+
+      print('Broadcasting presence on UDP port $_broadcastPort');
+    } catch (e) {
+      print('Broadcast error: $e');
+    }
+  }
+
+  void _stopBroadcast() {
+    _broadcastTimer?.cancel();
+    _udpSocket?.close();
   }
 
   Future<void> _captureAndSend() async {
@@ -62,7 +176,6 @@ class _HomeSpiScreenState extends State<HomeSpiScreen> {
       final rightBoundary = rightCapture.renderBoundary;
 
       if (leftBoundary != null && rightBoundary != null) {
-        print('Rendering to SPI displays...');
         await widget.displayManager.drawFromRenderObjects(
           leftBoundary,
           rightBoundary,
@@ -75,15 +188,7 @@ class _HomeSpiScreenState extends State<HomeSpiScreen> {
     } catch (e, st) {
       print('ERROR in _captureAndSend: $e');
       print('Stack trace: $st');
-      rethrow;
     }
-  }
-
-  void _cycleEmotion(int direction) {
-    final emotions = Emotion.values;
-    final currentIndex = emotions.indexOf(_currentEmotion);
-    final newIndex = (currentIndex + direction) % emotions.length;
-    setState(() => _currentEmotion = emotions[newIndex]);
   }
 
   @override

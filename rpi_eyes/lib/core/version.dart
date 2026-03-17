@@ -6,7 +6,7 @@ class AppVersion {
   static const int major = 2;
 
   /// Minor version - incremented for backwards-compatible functionality additions
-  static const int minor = 0;
+  static const int minor = 1;
 
   /// Patch version - incremented for backwards-compatible bug fixes
   static const int patch = 0;
