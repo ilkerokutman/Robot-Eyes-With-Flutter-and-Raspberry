@@ -67,6 +67,14 @@ class _HomeSpiScreenState extends State<HomeSpiScreen> {
     try {
       _server = await HttpServer.bind('0.0.0.0', widget.port);
 
+      // Wait for IP detection and print it
+      await Future.delayed(const Duration(milliseconds: 500));
+      if (_localIp != null) {
+        print('WebSocket server ready at ws://$_localIp:${widget.port}');
+      } else {
+        print('WebSocket server ready at port ${widget.port}');
+      }
+
       await for (final request in _server!) {
         if (WebSocketTransformer.isUpgradeRequest(request)) {
           final socket = await WebSocketTransformer.upgrade(request);

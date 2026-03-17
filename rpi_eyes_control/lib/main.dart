@@ -45,7 +45,7 @@ class ControlScreen extends StatefulWidget {
 
 class _ControlScreenState extends State<ControlScreen> {
   final TextEditingController _hostController = TextEditingController(
-    text: '127.0.0.1',
+    text: '192.168.0.108',
   );
   final TextEditingController _portController = TextEditingController(
     text: '5050',
@@ -61,7 +61,6 @@ class _ControlScreenState extends State<ControlScreen> {
   Timer? _sendTimer;
 
   RawDatagramSocket? _udpSocket;
-  bool _discovering = false;
   final List<Map<String, dynamic>> _discoveredServers = [];
   static const int _broadcastPort = 5001;
 
@@ -86,7 +85,6 @@ class _ControlScreenState extends State<ControlScreen> {
         InternetAddress.anyIPv4,
         _broadcastPort,
       );
-      setState(() => _discovering = true);
 
       _udpSocket!.listen((event) {
         if (event == RawSocketEvent.read) {
@@ -104,11 +102,8 @@ class _ControlScreenState extends State<ControlScreen> {
           }
         }
       });
-
-      debugPrint('Listening for eyes servers on UDP port $_broadcastPort');
     } catch (e) {
       debugPrint('Failed to start discovery: $e');
-      setState(() => _discovering = false);
     }
   }
 
@@ -122,28 +117,117 @@ class _ControlScreenState extends State<ControlScreen> {
     );
 
     if (!exists) {
-      setState(() {
-        _discoveredServers.add(server);
-      });
-      debugPrint('Discovered eyes server: $ip:$port');
-    }
-
-    if (!_connected && !_connecting && _discoveredServers.length == 1) {
-      _hostController.text = ip;
-      _portController.text = port.toString();
+      setState(() => _discoveredServers.add(server));
     }
   }
 
   void _stopDiscovery() {
     _udpSocket?.close();
     _udpSocket = null;
-    _discovering = false;
   }
 
-  void _selectServer(Map<String, dynamic> server) {
-    _hostController.text = server['ip'] as String;
-    _portController.text = (server['port'] as int).toString();
-    setState(() {});
+  void _showConnectionDialog() {
+    if (_connected) {
+      _showDisconnectDialog();
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF1A1A2E),
+        title: const Text('Connect to Eyes'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (_discoveredServers.isNotEmpty) ...[
+              const Text(
+                'Discovered servers:',
+                style: TextStyle(fontSize: 12, color: Colors.grey),
+              ),
+              const SizedBox(height: 8),
+              ..._discoveredServers.map(
+                (server) => ListTile(
+                  dense: true,
+                  title: Text(
+                    '${server['ip']}:${server['port']}',
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                  onTap: () {
+                    _hostController.text = server['ip'] as String;
+                    _portController.text = (server['port'] as int).toString();
+                  },
+                ),
+              ),
+              const Divider(),
+            ],
+            TextField(
+              controller: _hostController,
+              decoration: const InputDecoration(
+                labelText: 'Host',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _portController,
+              decoration: const InputDecoration(
+                labelText: 'Port',
+                border: OutlineInputBorder(),
+              ),
+              keyboardType: TextInputType.number,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: _connecting
+                ? null
+                : () {
+                    Navigator.pop(context);
+                    _connect();
+                  },
+            child: _connecting
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Text('Connect'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDisconnectDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF1A1A2E),
+        title: const Text('Disconnect?'),
+        content: const Text('Do you want to disconnect from the eyes?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _disconnect();
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Disconnect'),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _connect() async {
@@ -161,22 +245,13 @@ class _ControlScreenState extends State<ControlScreen> {
 
       _socket!.listen(
         (message) {},
-        onDone: () {
-          setState(() => _connected = false);
-        },
-        onError: (error) {
-          setState(() => _connected = false);
-        },
+        onDone: () => setState(() => _connected = false),
+        onError: (_) => setState(() => _connected = false),
       );
 
       _startSendLoop();
     } catch (e) {
       setState(() => _connecting = false);
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Connection failed: $e')));
-      }
     }
   }
 
@@ -205,28 +280,27 @@ class _ControlScreenState extends State<ControlScreen> {
     _socket!.add(jsonEncode(data));
   }
 
-  void _cycleEmotion(int direction) {
-    final emotions = Emotion.values;
-    final currentIndex = emotions.indexOf(_currentEmotion);
-    final newIndex = (currentIndex + direction) % emotions.length;
-    setState(() => _currentEmotion = emotions[newIndex]);
+  void _setEmotion(Emotion emotion) {
+    setState(() => _currentEmotion = emotion);
+    _sendState();
+  }
+
+  void _updateGaze(Alignment gaze) {
+    setState(() => _gaze = gaze);
     _sendState();
   }
 
   @override
   Widget build(BuildContext context) {
-    final isPortrait =
-        MediaQuery.of(context).size.height > MediaQuery.of(context).size.width;
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Eyes Control'),
         backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
-          Container(
-            margin: const EdgeInsets.only(right: 16),
-            child: Icon(
+          IconButton(
+            onPressed: _showConnectionDialog,
+            icon: Icon(
               _connected ? Icons.wifi : Icons.wifi_off,
               color: _connected ? Colors.green : Colors.grey,
             ),
@@ -236,265 +310,14 @@ class _ControlScreenState extends State<ControlScreen> {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: isPortrait ? _buildPortraitLayout() : _buildLandscapeLayout(),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPortraitLayout() {
-    return Column(
-      children: [
-        _buildConnectionPanel(),
-        const SizedBox(height: 16),
-        Expanded(flex: 2, child: _buildGazePanel()),
-        const SizedBox(height: 16),
-        Expanded(flex: 3, child: _buildEmotionPanel()),
-      ],
-    );
-  }
-
-  Widget _buildLandscapeLayout() {
-    return Column(
-      children: [
-        _buildConnectionPanel(),
-        const SizedBox(height: 16),
-        Expanded(
-          child: Row(
+          child: Column(
             children: [
-              Expanded(child: _buildEmotionPanel()),
-              const SizedBox(width: 16),
               Expanded(child: _buildGazePanel()),
+              const SizedBox(height: 16),
+              Expanded(child: _buildEmotionPanel()),
             ],
           ),
         ),
-      ],
-    );
-  }
-
-  Widget _buildConnectionPanel() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (_discoveredServers.isNotEmpty && !_connected) ...[
-            Row(
-              children: [
-                Icon(
-                  Icons.radar,
-                  size: 16,
-                  color: Colors.green.withValues(alpha: 0.7),
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  'Discovered (${_discoveredServers.length}):',
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.6),
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: _discoveredServers.map((server) {
-                final ip = server['ip'] as String;
-                final port = server['port'] as int;
-                final isSelected =
-                    _hostController.text == ip &&
-                    _portController.text == port.toString();
-                return GestureDetector(
-                  onTap: () => _selectServer(server),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? Colors.green.withValues(alpha: 0.3)
-                          : Colors.white.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(16),
-                      border: isSelected
-                          ? Border.all(color: Colors.green)
-                          : null,
-                    ),
-                    child: Text(
-                      '$ip:$port',
-                      style: TextStyle(
-                        color: isSelected ? Colors.green : Colors.white70,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: 16),
-          ],
-          Row(
-            children: [
-              Expanded(
-                flex: 3,
-                child: TextField(
-                  controller: _hostController,
-                  decoration: InputDecoration(
-                    labelText: 'Host',
-                    border: const OutlineInputBorder(),
-                    isDense: true,
-                    suffixIcon: _discovering
-                        ? Padding(
-                            padding: const EdgeInsets.all(12),
-                            child: SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.green.withValues(alpha: 0.5),
-                              ),
-                            ),
-                          )
-                        : null,
-                  ),
-                  enabled: !_connected,
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: TextField(
-                  controller: _portController,
-                  decoration: const InputDecoration(
-                    labelText: 'Port',
-                    border: OutlineInputBorder(),
-                    isDense: true,
-                  ),
-                  enabled: !_connected,
-                  keyboardType: TextInputType.number,
-                ),
-              ),
-              const SizedBox(width: 10),
-              ElevatedButton(
-                onPressed: _connected ? _disconnect : _connect,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: _connected ? Colors.red : Colors.green,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 16,
-                  ),
-                ),
-                child: _connecting
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      )
-                    : Text(_connected ? 'Disconnect' : 'Connect'),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEmotionPanel() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Emotion',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    onPressed: () => _cycleEmotion(-1),
-                    icon: const Icon(Icons.chevron_left, size: 28),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                  ),
-                  Container(
-                    width: 90,
-                    alignment: Alignment.center,
-                    child: Text(
-                      _currentEmotion.name,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.cyanAccent,
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () => _cycleEmotion(1),
-                    icon: const Icon(Icons.chevron_right, size: 28),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Expanded(
-            child: GridView.count(
-              crossAxisCount: 3,
-              mainAxisSpacing: 8,
-              crossAxisSpacing: 8,
-              childAspectRatio: 2.0,
-              children: Emotion.values.map((emotion) {
-                final isSelected = emotion == _currentEmotion;
-                return GestureDetector(
-                  onTap: () {
-                    setState(() => _currentEmotion = emotion);
-                    _sendState();
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? Colors.cyanAccent.withValues(alpha: 0.3)
-                          : Colors.white.withValues(alpha: 0.05),
-                      borderRadius: BorderRadius.circular(8),
-                      border: isSelected
-                          ? Border.all(color: Colors.cyanAccent, width: 2)
-                          : null,
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      emotion.name,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: isSelected
-                            ? FontWeight.bold
-                            : FontWeight.normal,
-                        color: isSelected ? Colors.cyanAccent : Colors.white70,
-                      ),
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -503,7 +326,7 @@ class _ControlScreenState extends State<ControlScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.05),
+        color: Colors.white.withAlpha(13),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -513,20 +336,18 @@ class _ControlScreenState extends State<ControlScreen> {
             children: [
               const Text(
                 'Gaze',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
-              GestureDetector(
-                onTap: () {
-                  setState(() => _gaze = Alignment.center);
-                  _sendState();
-                },
+              InkWell(
+                onTap: () => _updateGaze(Alignment.center),
+                borderRadius: BorderRadius.circular(12),
                 child: Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 12,
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.1),
+                    color: Colors.white.withAlpha(26),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
@@ -537,7 +358,7 @@ class _ControlScreenState extends State<ControlScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
           Expanded(
             child: LayoutBuilder(
               builder: (context, constraints) {
@@ -552,18 +373,15 @@ class _ControlScreenState extends State<ControlScreen> {
                     onPanUpdate: (details) {
                       _updateGazeFromPosition(details.localPosition, size);
                     },
-                    onDoubleTap: () {
-                      setState(() => _gaze = Alignment.center);
-                      _sendState();
-                    },
+                    onDoubleTap: () => _updateGaze(Alignment.center),
                     child: Container(
                       width: size,
                       height: size,
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.05),
+                        color: Colors.white.withAlpha(13),
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.2),
+                          color: Colors.white.withAlpha(51),
                           width: 2,
                         ),
                       ),
@@ -574,7 +392,7 @@ class _ControlScreenState extends State<ControlScreen> {
                               width: 8,
                               height: 8,
                               decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.3),
+                                color: Colors.white.withAlpha(77),
                                 shape: BoxShape.circle,
                               ),
                             ),
@@ -589,9 +407,7 @@ class _ControlScreenState extends State<ControlScreen> {
                                 shape: BoxShape.circle,
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.cyanAccent.withValues(
-                                      alpha: 0.5,
-                                    ),
+                                    color: Colors.cyanAccent.withAlpha(128),
                                     blurRadius: 10,
                                     spreadRadius: 2,
                                   ),
@@ -616,6 +432,62 @@ class _ControlScreenState extends State<ControlScreen> {
     final center = size / 2;
     final x = ((position.dx - center) / center).clamp(-1.0, 1.0);
     final y = ((position.dy - center) / center).clamp(-1.0, 1.0);
-    setState(() => _gaze = Alignment(x, y));
+    _updateGaze(Alignment(x, y));
+  }
+
+  Widget _buildEmotionPanel() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white.withAlpha(13),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Emotion',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
+          Expanded(
+            child: GridView.count(
+              crossAxisCount: 3,
+              mainAxisSpacing: 8,
+              crossAxisSpacing: 8,
+              childAspectRatio: 2.0,
+              children: Emotion.values.map((emotion) {
+                final isSelected = emotion == _currentEmotion;
+                return GestureDetector(
+                  onTap: () => _setEmotion(emotion),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? Colors.cyanAccent.withAlpha(77)
+                          : Colors.white.withAlpha(13),
+                      borderRadius: BorderRadius.circular(8),
+                      border: isSelected
+                          ? Border.all(color: Colors.cyanAccent, width: 2)
+                          : null,
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      emotion.name,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: isSelected
+                            ? FontWeight.bold
+                            : FontWeight.normal,
+                        color: isSelected ? Colors.cyanAccent : Colors.white70,
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
