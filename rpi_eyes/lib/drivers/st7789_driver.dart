@@ -47,30 +47,20 @@ abstract class St7789Driver {
   Future<void> initialize({bool skipReset = false}) async {
     if (_initialized) return;
 
-    print('Initializing display CS: $chipSelect');
     if (!skipReset) {
-      print('  Hardware reset...');
       await _hardwareReset();
-      print('  Hardware reset done');
     }
-    print('  Init sequence...');
     await _initSequence();
-    print('  Init sequence done');
     _initialized = true;
-    print('Display CS: $chipSelect initialized');
   }
 
   Future<void> _hardwareReset() async {
-    print('    Reset pin high');
     resetGpio.write(true);
     await Future<void>.delayed(const Duration(milliseconds: 50));
-    print('    Reset pin low');
     resetGpio.write(false);
     await Future<void>.delayed(const Duration(milliseconds: 50));
-    print('    Reset pin high again');
     resetGpio.write(true);
     await Future<void>.delayed(const Duration(milliseconds: 150));
-    print('    Reset complete');
   }
 
   Future<void> _initSequence() async {
@@ -119,10 +109,6 @@ abstract class St7789Driver {
       throw StateError('Driver not initialized. Call initialize() first.');
     }
 
-    print(
-      'drawBuffer called - CS: $chipSelect, buffer size: ${rgb565Buffer.length}',
-    );
-
     _setWindow(0, 0, DisplayConfig.width - 1, DisplayConfig.height - 1);
 
     dcGpio.write(false);
@@ -140,7 +126,6 @@ abstract class St7789Driver {
       final chunk = rgb565Buffer.sublist(offset, end);
       spi.write(chunk);
     }
-    print('drawBuffer completed - CS: $chipSelect');
   }
 
   void dispose() {

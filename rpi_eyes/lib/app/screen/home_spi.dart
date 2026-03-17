@@ -66,13 +66,11 @@ class _HomeSpiScreenState extends State<HomeSpiScreen> {
   Future<void> _startServer() async {
     try {
       _server = await HttpServer.bind('0.0.0.0', widget.port);
-      print('Eyes WebSocket server running on ws://0.0.0.0:${widget.port}');
 
       await for (final request in _server!) {
         if (WebSocketTransformer.isUpgradeRequest(request)) {
           final socket = await WebSocketTransformer.upgrade(request);
           _clients.add(socket);
-          print('Control client connected');
           _handleClient(socket);
         } else {
           request.response
@@ -96,20 +94,15 @@ class _HomeSpiScreenState extends State<HomeSpiScreen> {
             _currentEmotion = data.emotion;
             _gaze = data.gaze;
           });
-          print(
-            'Received command: emotion=${data.emotion.name}, gaze=${data.gaze}',
-          );
         } catch (e) {
           print('Parse error: $e');
         }
       },
       onDone: () {
         _clients.remove(socket);
-        print('Control client disconnected');
       },
       onError: (error) {
         _clients.remove(socket);
-        print('Client error: $error');
       },
     );
   }
@@ -146,7 +139,7 @@ class _HomeSpiScreenState extends State<HomeSpiScreen> {
           'service': 'rpi_eyes',
           'ip': _localIp,
           'port': widget.port,
-          'version': '2.0.0',
+          'version': '2.1.0',
         });
 
         _udpSocket!.send(
@@ -155,8 +148,6 @@ class _HomeSpiScreenState extends State<HomeSpiScreen> {
           _broadcastPort,
         );
       });
-
-      print('Broadcasting presence on UDP port $_broadcastPort');
     } catch (e) {
       print('Broadcast error: $e');
     }
