@@ -21,7 +21,7 @@ class Pupil extends StatelessWidget {
         final eyeSize = constraints.maxWidth < constraints.maxHeight
             ? constraints.maxWidth
             : constraints.maxHeight;
-        final basePupilSize = eyeSize * 0.35;
+        final basePupilSize = eyeSize * 0.42;
         final pupilSize = basePupilSize * config.pupilScale;
         final glintSize = pupilSize * 0.12;
         final glintOffset = pupilSize * 0.15;
@@ -29,7 +29,7 @@ class Pupil extends StatelessWidget {
         final maxOffset = (eyeSize - pupilSize) / 2 * 0.6;
         final emotionOffsetX = config.offsetX * maxOffset;
         final emotionOffsetY = config.offsetY * maxOffset;
-        final gazeOffsetX = gaze.x * maxOffset;
+        final gazeOffsetX = -gaze.x * maxOffset;
         final gazeOffsetY = gaze.y * maxOffset;
         final offsetX = emotionOffsetX + gazeOffsetX;
         final offsetY = emotionOffsetY + gazeOffsetY;

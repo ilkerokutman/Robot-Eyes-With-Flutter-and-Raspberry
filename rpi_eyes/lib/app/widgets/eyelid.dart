@@ -11,8 +11,8 @@ class Eyelid extends StatelessWidget {
     if (closedAmount <= 0) return const SizedBox.shrink();
 
     return Positioned(
-      top: isUpper ? 0 : null,
-      bottom: isUpper ? null : 0,
+      top: isUpper ? null : 0,
+      bottom: isUpper ? 0 : null,
       left: 0,
       right: 0,
       child: LayoutBuilder(
@@ -24,12 +24,12 @@ class Eyelid extends StatelessWidget {
               color: Colors.black,
               borderRadius: isUpper
                   ? BorderRadius.only(
-                      bottomLeft: Radius.circular(height * 0.3),
-                      bottomRight: Radius.circular(height * 0.3),
-                    )
-                  : BorderRadius.only(
                       topLeft: Radius.circular(height * 0.3),
                       topRight: Radius.circular(height * 0.3),
+                    )
+                  : BorderRadius.only(
+                      bottomLeft: Radius.circular(height * 0.3),
+                      bottomRight: Radius.circular(height * 0.3),
                     ),
             ),
           );

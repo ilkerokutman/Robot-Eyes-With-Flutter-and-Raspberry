@@ -147,7 +147,7 @@ class _HomeSpiScreenState extends State<HomeSpiScreen> {
           'service': 'rpi_eyes',
           'ip': _localIp,
           'port': widget.port,
-          'version': '2.2.0',
+          'version': '2.2.1',
         });
 
         _udpSocket!.send(

@@ -1,0 +1,71 @@
+ROBOT EYES v2.2.0 DEPLOYMENT INSTRUCTIONS
+=========================================
+
+Changes in v2.2.0:
+- Y-axis inverted (positive Y now moves eyes down)
+- Eyeball aspect ratio fixed for circular appearance on 240x198 displays
+
+DEPLOYMENT STEPS
+================
+
+1. SSH to Raspberry Pi
+   ssh pi@192.168.0.108
+
+2. Navigate to project directory
+   cd ~/Robot-Eyes-With-Flutter-and-Raspberry
+
+3. Pull latest code
+   git fetch origin
+   git pull origin main
+
+4. Navigate to rpi_eyes
+   cd rpi_eyes
+
+5. Clean previous build
+   /opt/flutter/bin/flutter clean
+
+6. Get dependencies
+   /opt/flutter/bin/flutter pub get
+
+7. Build release binary (takes a few minutes)
+   /opt/flutter/bin/flutter build linux --release
+
+8. Stop running service
+   sudo systemctl stop robot-eyes
+   (or press Ctrl+C if running manually)
+
+9. Backup current installation (optional)
+   sudo cp -r /opt/eyes /opt/eyes.backup.$(date +%Y%m%d_%H%M%S)
+
+10. Remove old installation
+    sudo rm -rf /opt/eyes/*
+
+11. Copy new build
+    sudo cp -r build/linux/arm64/release/bundle/* /opt/eyes/
+
+12. Set execute permission
+    sudo chmod +x /opt/eyes/rpi_eyes
+
+13. Verify installation
+    ls -la /opt/eyes/
+
+14. Start service
+    sudo systemctl start robot-eyes
+    sudo systemctl status robot-eyes
+    (or run manually: robot-eyes)
+
+15. Verify version shows:
+    Robot Eyes v2.2.0 | Pi 4 | SPI: OK
+    WebSocket server ready at ws://192.168.0.108:5050
+
+TESTING
+=======
+- Test Y-axis: Drag gaze up on control app → eyes look down
+- Test eyeball shape: Should appear circular (not elliptical)
+- Test WebSocket: Control app connects and controls smoothly
+
+ROLLBACK (if needed)
+====================
+sudo rm -rf /opt/eyes/*
+sudo cp -r /opt/eyes.backup.YYYYMMDD_HHMMSS/* /opt/eyes/
+sudo systemctl restart robot-eyes

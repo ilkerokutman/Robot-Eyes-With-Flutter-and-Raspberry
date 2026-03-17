@@ -9,7 +9,7 @@ class AppVersion {
   static const int minor = 2;
 
   /// Patch version - incremented for backwards-compatible bug fixes
-  static const int patch = 0;
+  static const int patch = 1;
 
   /// Full semantic version string (major.minor.patch)
   static const String full = '$major.$minor.$patch';
