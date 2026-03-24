@@ -150,8 +150,8 @@ class _EyeWidgetState extends State<EyeWidget> with TickerProviderStateMixin {
                   child: Stack(
                     children: [
                       Pupil(side: widget.side, config: config, gaze: gaze),
-                      Eyelid(isUpper: true, closedAmount: upperLid),
-                      Eyelid(isUpper: false, closedAmount: lowerLid),
+                      Eyelid(isUpper: false, closedAmount: upperLid),
+                      Eyelid(isUpper: true, closedAmount: lowerLid),
                     ],
                   ),
                 ),
