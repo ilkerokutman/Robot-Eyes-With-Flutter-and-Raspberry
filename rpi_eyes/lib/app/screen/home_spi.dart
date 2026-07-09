@@ -14,10 +14,15 @@ class HomeSpiScreen extends StatefulWidget {
     super.key,
     required this.displayManager,
     this.port = 5050,
+    this.targetFps = 10,
   });
 
   final DisplayManager displayManager;
   final int port;
+
+  /// Target frames per second for the SPI render loop.
+  /// Lower values reduce SPI bus / CPU load and help prevent hangs.
+  final int targetFps;
 
   @override
   State<HomeSpiScreen> createState() => _HomeSpiScreenState();
@@ -31,6 +36,8 @@ class _HomeSpiScreenState extends State<HomeSpiScreen> {
   final GlobalKey _rightEyeKey = GlobalKey();
 
   Timer? _renderTimer;
+  bool _renderLoopRunning = false;
+  bool _isCapturing = false;
 
   HttpServer? _server;
   final List<WebSocket> _clients = [];
@@ -50,17 +57,51 @@ class _HomeSpiScreenState extends State<HomeSpiScreen> {
 
   @override
   void dispose() {
-    _renderTimer?.cancel();
+    _stopRenderLoop();
     _stopServer();
     _stopBroadcast();
     super.dispose();
   }
 
   void _startRenderLoop() {
-    _renderTimer = Timer.periodic(
-      const Duration(milliseconds: 50),
-      (_) => _captureAndSend(),
+    _renderLoopRunning = true;
+    _scheduleRenderFrame();
+  }
+
+  void _stopRenderLoop() {
+    _renderLoopRunning = false;
+    _renderTimer?.cancel();
+    _renderTimer = null;
+  }
+
+  void _scheduleRenderFrame() {
+    if (!_renderLoopRunning) return;
+
+    final frameInterval = Duration(
+      milliseconds: (1000 / widget.targetFps).round(),
     );
+    _renderTimer = Timer(frameInterval, _onRenderFrame);
+  }
+
+  Future<void> _onRenderFrame() async {
+    if (!_renderLoopRunning) return;
+
+    if (_isCapturing) {
+      // Previous frame still in progress; skip this tick to avoid backlog.
+      _scheduleRenderFrame();
+      return;
+    }
+
+    _isCapturing = true;
+    try {
+      await _captureAndSend();
+    } catch (e, st) {
+      print('ERROR in render frame: $e');
+      print('Stack trace: $st');
+    } finally {
+      _isCapturing = false;
+      _scheduleRenderFrame();
+    }
   }
 
   Future<void> _startServer() async {
@@ -139,6 +180,7 @@ class _HomeSpiScreenState extends State<HomeSpiScreen> {
       }
 
       _udpSocket = await RawDatagramSocket.bind(InternetAddress.anyIPv4, 0);
+      _udpSocket!.broadcastEnabled = true;
 
       _broadcastTimer = Timer.periodic(const Duration(seconds: 2), (_) {
         if (_localIp == null) return;
