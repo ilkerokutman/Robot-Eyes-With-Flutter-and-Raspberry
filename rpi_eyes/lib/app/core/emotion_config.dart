@@ -14,6 +14,7 @@ class EmotionConfig {
     required this.offsetY,
     required this.upperLidTop,
     required this.lowerLidBottom,
+    this.pupilShape = PupilShape.circle,
     this.pupilSquash = 1.0,
     this.blinkIntervalMs = 3000,
     this.blinkVarianceMs = 1500,
@@ -27,6 +28,7 @@ class EmotionConfig {
   final double offsetY;
   final double upperLidTop;
   final double lowerLidBottom;
+  final PupilShape pupilShape;
   final double pupilSquash;
   final int blinkIntervalMs;
   final int blinkVarianceMs;
@@ -77,7 +79,7 @@ class EmotionConfig {
         offsetX: 0,
         offsetY: 0,
         upperLidTop: 0.35,
-        lowerLidBottom: 0,
+        lowerLidBottom: 0.35,
         pupilSquash: 0.85,
         blinkIntervalMs: 5000,
         blinkVarianceMs: 2000,
@@ -142,6 +144,45 @@ class EmotionConfig {
         blinkIntervalMs: 2500,
         blinkVarianceMs: 1000,
       ),
+      Emotion.love => const EmotionConfig(
+        pupilScale: 1.2,
+        pupilColor: Colors.pinkAccent,
+        glowColor: Colors.pink,
+        glowIntensity: 0.9,
+        offsetX: 0,
+        offsetY: 0,
+        upperLidTop: 0.1,
+        lowerLidBottom: 0.1,
+        pupilShape: PupilShape.heart,
+        blinkIntervalMs: 2200,
+        blinkVarianceMs: 800,
+      ),
+      Emotion.confused => const EmotionConfig(
+        pupilScale: 1.0,
+        pupilColor: Colors.orangeAccent,
+        glowColor: Colors.orange,
+        glowIntensity: 0.6,
+        offsetX: 0,
+        offsetY: -0.05,
+        upperLidTop: 0.05,
+        lowerLidBottom: 0,
+        pupilShape: PupilShape.questionMark,
+        blinkIntervalMs: 3500,
+        blinkVarianceMs: 1500,
+      ),
+      Emotion.money => const EmotionConfig(
+        pupilScale: 1.0,
+        pupilColor: Colors.greenAccent,
+        glowColor: Colors.green,
+        glowIntensity: 0.8,
+        offsetX: 0,
+        offsetY: 0,
+        upperLidTop: 0.15,
+        lowerLidBottom: 0,
+        pupilShape: PupilShape.dollarSign,
+        blinkIntervalMs: 3000,
+        blinkVarianceMs: 1200,
+      ),
     };
   }
 
@@ -155,6 +196,7 @@ class EmotionConfig {
       offsetY: lerpDouble(a.offsetY, b.offsetY, t)!,
       upperLidTop: lerpDouble(a.upperLidTop, b.upperLidTop, t)!,
       lowerLidBottom: lerpDouble(a.lowerLidBottom, b.lowerLidBottom, t)!,
+      pupilShape: t < 0.5 ? a.pupilShape : b.pupilShape,
       pupilSquash: lerpDouble(a.pupilSquash, b.pupilSquash, t)!,
     );
   }

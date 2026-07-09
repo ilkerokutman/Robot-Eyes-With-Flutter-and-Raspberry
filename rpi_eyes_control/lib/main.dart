@@ -34,6 +34,9 @@ enum Emotion {
   joyful,
   bored,
   friendly,
+  love,
+  confused,
+  money,
 }
 
 extension EmotionTR on Emotion {
@@ -57,6 +60,12 @@ extension EmotionTR on Emotion {
         return 'Sıkılmış';
       case Emotion.friendly:
         return 'Dostça';
+      case Emotion.love:
+        return 'Aşık';
+      case Emotion.confused:
+        return 'Şaşkın';
+      case Emotion.money:
+        return 'Paragöz';
     }
   }
 }
@@ -82,6 +91,8 @@ class _ControlScreenState extends State<ControlScreen> {
 
   Emotion _currentEmotion = Emotion.idle;
   Alignment _gaze = Alignment.center;
+  bool _invertX = false;
+  bool _invertY = false;
 
   Timer? _sendTimer;
 
@@ -171,18 +182,20 @@ class _ControlScreenState extends State<ControlScreen> {
                 style: TextStyle(fontSize: 12, color: Colors.grey),
               ),
               const SizedBox(height: 8),
-              ..._discoveredServers.map((server) => ListTile(
-                    dense: true,
-                    title: Text(
-                      '${server['ip']}:${server['port']}',
-                      style: const TextStyle(fontSize: 14),
-                    ),
-                    trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                    onTap: () {
-                      _hostController.text = server['ip'] as String;
-                      _portController.text = (server['port'] as int).toString();
-                    },
-                  )),
+              ..._discoveredServers.map(
+                (server) => ListTile(
+                  dense: true,
+                  title: Text(
+                    '${server['ip']}:${server['port']}',
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                  onTap: () {
+                    _hostController.text = server['ip'] as String;
+                    _portController.text = (server['port'] as int).toString();
+                  },
+                ),
+              ),
               const Divider(),
             ],
             TextField(
@@ -292,12 +305,21 @@ class _ControlScreenState extends State<ControlScreen> {
     });
   }
 
+  Alignment get _effectiveGaze {
+    return Alignment(
+      _invertX ? -_gaze.x : _gaze.x,
+      _invertY ? -_gaze.y : _gaze.y,
+    );
+  }
+
   void _sendState() {
     if (_socket == null || !_connected) return;
 
+    final effectiveGaze = _effectiveGaze;
     final data = {
       'emotion': _currentEmotion.name,
-      'gaze': {'x': _gaze.x, 'y': _gaze.y},
+      'gaze': {'x': effectiveGaze.x, 'y': effectiveGaze.y},
+      'invertY': _invertY,
     };
 
     _socket!.add(jsonEncode(data));
@@ -446,6 +468,50 @@ class _ControlScreenState extends State<ControlScreen> {
               },
             ),
           ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: Row(
+                  children: [
+                    Switch(
+                      value: _invertX,
+                      onChanged: (value) {
+                        setState(() => _invertX = value);
+                        _sendState();
+                      },
+                      activeThumbColor: Colors.cyanAccent,
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    const Text(
+                      'X Ters',
+                      style: TextStyle(fontSize: 12, color: Colors.white70),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    const Text(
+                      'Y Ters',
+                      style: TextStyle(fontSize: 12, color: Colors.white70),
+                    ),
+                    Switch(
+                      value: _invertY,
+                      onChanged: (value) {
+                        setState(() => _invertY = value);
+                        _sendState();
+                      },
+                      activeThumbColor: Colors.cyanAccent,
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );
@@ -498,8 +564,9 @@ class _ControlScreenState extends State<ControlScreen> {
                       emotion.trName,
                       style: TextStyle(
                         fontSize: 12,
-                        fontWeight:
-                            isSelected ? FontWeight.bold : FontWeight.normal,
+                        fontWeight: isSelected
+                            ? FontWeight.bold
+                            : FontWeight.normal,
                         color: isSelected ? Colors.cyanAccent : Colors.white70,
                       ),
                     ),

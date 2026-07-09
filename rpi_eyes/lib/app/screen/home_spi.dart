@@ -31,6 +31,7 @@ class HomeSpiScreen extends StatefulWidget {
 class _HomeSpiScreenState extends State<HomeSpiScreen> {
   Emotion _currentEmotion = Emotion.idle;
   Alignment _gaze = Alignment.center;
+  bool _invertY = false;
 
   final GlobalKey _leftEyeKey = GlobalKey();
   final GlobalKey _rightEyeKey = GlobalKey();
@@ -142,6 +143,7 @@ class _HomeSpiScreenState extends State<HomeSpiScreen> {
           setState(() {
             _currentEmotion = data.emotion;
             _gaze = data.gaze;
+            _invertY = data.invertY;
           });
         } catch (e) {
           print('Parse error: $e');
@@ -245,6 +247,7 @@ class _HomeSpiScreenState extends State<HomeSpiScreen> {
                 side: EyeSide.left,
                 emotion: _currentEmotion,
                 gaze: _gaze,
+                invertY: _invertY,
               ),
             ),
           ),
@@ -255,6 +258,7 @@ class _HomeSpiScreenState extends State<HomeSpiScreen> {
                 side: EyeSide.right,
                 emotion: _currentEmotion,
                 gaze: _gaze,
+                invertY: _invertY,
               ),
             ),
           ),

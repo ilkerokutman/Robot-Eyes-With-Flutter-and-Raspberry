@@ -20,6 +20,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   Emotion _currentEmotion = Emotion.idle;
   Alignment _gaze = Alignment.center;
+  bool _invertY = false;
 
   HttpServer? _server;
   final List<WebSocket> _clients = [];
@@ -77,6 +78,7 @@ class _HomeScreenState extends State<HomeScreen> {
           setState(() {
             _currentEmotion = data.emotion;
             _gaze = data.gaze;
+            _invertY = data.invertY;
           });
         } catch (e) {
           debugPrint('Parse error: $e');
@@ -174,6 +176,7 @@ class _HomeScreenState extends State<HomeScreen> {
               side: EyeSide.left,
               emotion: _currentEmotion,
               gaze: _gaze,
+              invertY: _invertY,
             ),
           ),
           Expanded(
@@ -181,6 +184,7 @@ class _HomeScreenState extends State<HomeScreen> {
               side: EyeSide.right,
               emotion: _currentEmotion,
               gaze: _gaze,
+              invertY: _invertY,
             ),
           ),
         ],

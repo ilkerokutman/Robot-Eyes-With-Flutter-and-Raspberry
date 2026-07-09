@@ -10,4 +10,9 @@ enum Emotion {
   joyful,
   bored,
   friendly,
+  love,
+  confused,
+  money,
 }
+
+enum PupilShape { circle, heart, questionMark, dollarSign }

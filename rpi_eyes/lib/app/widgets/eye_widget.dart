@@ -14,10 +14,12 @@ class EyeWidget extends StatefulWidget {
     required this.side,
     required this.emotion,
     this.gaze = Alignment.center,
+    this.invertY = false,
   });
   final EyeSide side;
   final Emotion emotion;
   final Alignment gaze;
+  final bool invertY;
 
   @override
   State<EyeWidget> createState() => _EyeWidgetState();
@@ -139,6 +141,13 @@ class _EyeWidgetState extends State<EyeWidget> with TickerProviderStateMixin {
         final upperLid = max(config.upperLidTop, blinkValue * 0.52);
         final lowerLid = max(config.lowerLidBottom, blinkValue * 0.52);
 
+        final topEyelid = widget.invertY
+            ? Eyelid(isUpper: true, closedAmount: upperLid)
+            : Eyelid(isUpper: false, closedAmount: upperLid);
+        final bottomEyelid = widget.invertY
+            ? Eyelid(isUpper: false, closedAmount: lowerLid)
+            : Eyelid(isUpper: true, closedAmount: lowerLid);
+
         return Center(
           child: AspectRatio(
             aspectRatio: 1,
@@ -150,8 +159,8 @@ class _EyeWidgetState extends State<EyeWidget> with TickerProviderStateMixin {
                   child: Stack(
                     children: [
                       Pupil(side: widget.side, config: config, gaze: gaze),
-                      Eyelid(isUpper: false, closedAmount: upperLid),
-                      Eyelid(isUpper: true, closedAmount: lowerLid),
+                      topEyelid,
+                      bottomEyelid,
                     ],
                   ),
                 ),
