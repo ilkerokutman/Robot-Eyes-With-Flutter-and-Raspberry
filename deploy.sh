@@ -16,7 +16,7 @@ set -e
 # Default values
 BRANCH="pi5-support"
 BUILD_SERVER_IP="192.168.0.70"
-TARGET_PI_IP="192.168.0.116"
+TARGET_PI_IP="192.168.0.81"
 SSH_USER="pi"
 VERSION=""  # Will be parsed from pubspec.yaml if not provided
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
