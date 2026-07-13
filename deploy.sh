@@ -182,16 +182,29 @@ echo ""
 # Step 6: Deploy to target Pi
 echo -e "${YELLOW}[6/6] Deploying to target Pi...${NC}"
 
+# Temporarily disable exit-on-error for the kill step so we can log every outcome.
+set +e
+
 # Stop a running instance so the bundle directory can be replaced cleanly.
 echo "Checking for running ${PROJECT_NAME} process..."
-RUNNING_PID=$(ssh "${SSH_USER}@${TARGET_PI_IP}" "pgrep -f '/opt/rpi_eyes/${PROJECT_NAME}' || true" 2>/dev/null)
-if [[ -n "$RUNNING_PID" ]]; then
+RUNNING_PID=$(ssh "${SSH_USER}@${TARGET_PI_IP}" "pgrep -f '/opt/rpi_eyes/${PROJECT_NAME}'" 2>&1)
+RUNNING_PID_EXIT=$?
+echo "pgrep exit code: $RUNNING_PID_EXIT"
+if [[ $RUNNING_PID_EXIT -eq 0 && -n "$RUNNING_PID" ]]; then
   echo "Found running process(es): $RUNNING_PID. Stopping..."
-  ssh "${SSH_USER}@${TARGET_PI_IP}" "pkill -9 -f '/opt/rpi_eyes/${PROJECT_NAME}' || true" 2>/dev/null
+  KILL_OUTPUT=$(ssh "${SSH_USER}@${TARGET_PI_IP}" "pkill -9 -f '/opt/rpi_eyes/${PROJECT_NAME}'" 2>&1)
+  KILL_EXIT=$?
+  echo "pkill exit code: $KILL_EXIT"
+  if [[ -n "$KILL_OUTPUT" ]]; then
+    echo "pkill output: $KILL_OUTPUT"
+  fi
   sleep 2
-  STILL_RUNNING=$(ssh "${SSH_USER}@${TARGET_PI_IP}" "pgrep -f '/opt/rpi_eyes/${PROJECT_NAME}' || true" 2>/dev/null)
-  if [[ -n "$STILL_RUNNING" ]]; then
+  STILL_RUNNING=$(ssh "${SSH_USER}@${TARGET_PI_IP}" "pgrep -f '/opt/rpi_eyes/${PROJECT_NAME}'" 2>&1)
+  STILL_RUNNING_EXIT=$?
+  echo "post-kill pgrep exit code: $STILL_RUNNING_EXIT"
+  if [[ $STILL_RUNNING_EXIT -eq 0 && -n "$STILL_RUNNING" ]]; then
     echo -e "${RED}✗ Could not stop running process(es): $STILL_RUNNING${NC}"
+    set -e
     exit 1
   fi
   echo -e "${GREEN}✓ Running process stopped${NC}"
@@ -199,9 +212,12 @@ else
   echo "No running ${PROJECT_NAME} process found"
 fi
 
+# Re-enable exit-on-error for the rest of the deployment.
+set -e
+
 # Remove old bundle completely so stale assets (version.json, .so files, fonts) are gone.
 echo "Removing old app bundle on Pi (/opt/rpi_eyes)..."
-ssh "${SSH_USER}@${TARGET_PI_IP}" "rm -rf /opt/rpi_eyes" 2>/dev/null || {
+ssh "${SSH_USER}@${TARGET_PI_IP}" "rm -rf /opt/rpi_eyes" || {
   echo -e "${RED}✗ Failed to remove old bundle on Pi${NC}"
   exit 1
 }
