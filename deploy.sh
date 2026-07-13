@@ -181,12 +181,27 @@ echo ""
 
 # Step 6: Deploy to target Pi
 echo -e "${YELLOW}[6/6] Deploying to target Pi...${NC}"
-echo "Copying executable to Pi..."
-scp "$ARTIFACTS_DIR/${PROJECT_NAME}" "${SSH_USER}@${TARGET_PI_IP}:/opt/rpi_eyes/${PROJECT_NAME}" || {
-  echo -e "${RED}✗ Failed to copy executable to Pi${NC}"
+
+# Stop a running instance so the bundle directory can be replaced cleanly.
+echo "Stopping any running ${PROJECT_NAME} process..."
+ssh "${SSH_USER}@${TARGET_PI_IP}" "pkill -f '/opt/rpi_eyes/${PROJECT_NAME}' || true"
+sleep 1
+
+# Remove old bundle completely so stale assets (version.json, .so files, fonts) are gone.
+echo "Removing old app bundle on Pi..."
+ssh "${SSH_USER}@${TARGET_PI_IP}" "rm -rf /opt/rpi_eyes" || {
+  echo -e "${RED}✗ Failed to remove old bundle on Pi${NC}"
   exit 1
 }
 
+# Copy the full release bundle (executable + data + lib) to the Pi.
+echo "Copying new app bundle to Pi..."
+scp -r "$ARTIFACTS_DIR/" "${SSH_USER}@${TARGET_PI_IP}:/opt/rpi_eyes" || {
+  echo -e "${RED}✗ Failed to copy app bundle to Pi${NC}"
+  exit 1
+}
+
+# Ensure the main executable is executable.
 echo "Setting executable permissions..."
 ssh "${SSH_USER}@${TARGET_PI_IP}" "chmod +x /opt/rpi_eyes/${PROJECT_NAME}" || {
   echo -e "${RED}✗ Failed to set permissions on Pi${NC}"
