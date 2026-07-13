@@ -51,6 +51,8 @@ Future<void> _runRaspberryPi() async {
     DisplayManager? displayManager;
     bool spiAvailable = false;
 
+    print('Initializing GC9A01 SPI displays...');
+
     // Attempt to initialize SPI displays
     try {
       displayManager = DisplayManager(

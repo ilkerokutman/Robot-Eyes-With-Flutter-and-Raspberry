@@ -8,7 +8,8 @@ class DisplayConfig {
   static const int bytesPerPixel = 2;
   static const int bufferSize = width * height * bytesPerPixel;
 
-  static const int spiSpeedHz = 40000000;
+  // Conservative 10 MHz for jumper-wire wiring. Raise once display is stable.
+  static const int spiSpeedHz = 10000000;
   static const int spiBus = 0;
 
   // CS: Pin 24 = CE0, Pin 26 = CE1
