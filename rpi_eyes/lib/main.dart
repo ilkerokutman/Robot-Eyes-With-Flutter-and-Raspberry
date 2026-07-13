@@ -24,18 +24,24 @@ void main() async {
 }
 
 Future<void> _diagnosticFill(DisplayManager manager) async {
-  final buffer = Uint8List(DisplayConfig.bufferSize);
+  final colors = <(String, int, int)>[
+    ('red', 0xF8, 0x00),
+    ('green', 0x07, 0xE0),
+    ('blue', 0x00, 0x1F),
+  ];
 
-  // Red fill (RGB565 big-endian: 0xF8, 0x00).
-  for (var i = 0; i < buffer.length; i += 2) {
-    buffer[i] = 0xF8;
-    buffer[i + 1] = 0x00;
+  for (final color in colors) {
+    final buffer = Uint8List(DisplayConfig.bufferSize);
+    for (var i = 0; i < buffer.length; i += 2) {
+      buffer[i] = color.$2;
+      buffer[i + 1] = color.$3;
+    }
+
+    manager.leftDriver.drawBuffer(buffer);
+    manager.rightDriver.drawBuffer(buffer);
+    print('Diagnostic: both screens filled ${color.$1}');
+    await Future<void>.delayed(const Duration(seconds: 2));
   }
-
-  manager.leftDriver.drawBuffer(buffer);
-  manager.rightDriver.drawBuffer(buffer);
-  print('Diagnostic: both screens filled red');
-  await Future<void>.delayed(const Duration(seconds: 3));
 }
 
 Future<void> _runDesktop() async {

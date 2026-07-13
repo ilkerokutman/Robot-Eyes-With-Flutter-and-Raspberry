@@ -85,9 +85,9 @@ abstract class Gc9a01Driver {
       resetGpio.write(true);
       await Future<void>.delayed(const Duration(milliseconds: 50));
       resetGpio.write(false);
-      await Future<void>.delayed(const Duration(milliseconds: 50));
+      await Future<void>.delayed(const Duration(milliseconds: 100));
       resetGpio.write(true);
-      await Future<void>.delayed(const Duration(milliseconds: 150));
+      await Future<void>.delayed(const Duration(milliseconds: 200));
       print('$_name reset pulse finished');
     } catch (e, st) {
       print('$_name reset pulse FAILED: $e');
@@ -219,16 +219,17 @@ abstract class Gc9a01Driver {
       _sendCommandRaw(0x74, [0x10, 0x85, 0x80, 0x00, 0x00, 0x4E, 0x00]);
       _sendCommandRaw(0x98, [0x3E, 0x07]);
 
-      // Tearing effect line on, display inversion on, default orientation.
+      // Tearing effect line on, display inversion on, common round LCD orientation.
       _sendCommand(Gc9a01Command.tearingEffectLineOn);
       _sendCommand(Gc9a01Command.invertOn);
-      _sendCommand(Gc9a01Command.memoryAccessControl, [0x00]);
+      _sendCommand(Gc9a01Command.memoryAccessControl, [0xC0]);
 
       _sendCommand(Gc9a01Command.sleepOut);
-      await Future<void>.delayed(const Duration(milliseconds: 120));
+      await Future<void>.delayed(const Duration(milliseconds: 200));
 
+      _sendCommand(Gc9a01Command.normalModeOn);
       _sendCommand(Gc9a01Command.displayOn);
-      await Future<void>.delayed(const Duration(milliseconds: 20));
+      await Future<void>.delayed(const Duration(milliseconds: 50));
       print('$_name init sequence sent successfully');
     } catch (e, st) {
       print('$_name init sequence FAILED: $e');
