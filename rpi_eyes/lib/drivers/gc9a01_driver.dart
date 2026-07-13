@@ -219,10 +219,10 @@ abstract class Gc9a01Driver {
       _sendCommandRaw(0x74, [0x10, 0x85, 0x80, 0x00, 0x00, 0x4E, 0x00]);
       _sendCommandRaw(0x98, [0x3E, 0x07]);
 
-      // Tearing effect line on, display inversion on, RGB order.
+      // Tearing effect line on, display inversion on, default orientation.
       _sendCommand(Gc9a01Command.tearingEffectLineOn);
       _sendCommand(Gc9a01Command.invertOn);
-      _sendCommand(Gc9a01Command.memoryAccessControl, [0x08]);
+      _sendCommand(Gc9a01Command.memoryAccessControl, [0x00]);
 
       _sendCommand(Gc9a01Command.sleepOut);
       await Future<void>.delayed(const Duration(milliseconds: 120));

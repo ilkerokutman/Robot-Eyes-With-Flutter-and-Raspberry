@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -20,6 +21,21 @@ void main() async {
   } else {
     await _runDesktop();
   }
+}
+
+Future<void> _diagnosticFill(DisplayManager manager) async {
+  final buffer = Uint8List(DisplayConfig.bufferSize);
+
+  // Red fill (RGB565 big-endian: 0xF8, 0x00).
+  for (var i = 0; i < buffer.length; i += 2) {
+    buffer[i] = 0xF8;
+    buffer[i + 1] = 0x00;
+  }
+
+  manager.leftDriver.drawBuffer(buffer);
+  manager.rightDriver.drawBuffer(buffer);
+  print('Diagnostic: both screens filled red');
+  await Future<void>.delayed(const Duration(seconds: 3));
 }
 
 Future<void> _runDesktop() async {
@@ -72,6 +88,11 @@ Future<void> _runRaspberryPi() async {
         ),
       );
       await displayManager.initialize();
+
+      // Temporary diagnostic: fill both screens red for 3 seconds.
+      // Remove once displays are confirmed working.
+      await _diagnosticFill(displayManager);
+
       spiAvailable = true;
     } catch (e, st) {
       // SPI initialization failed - continue with HDMI only
