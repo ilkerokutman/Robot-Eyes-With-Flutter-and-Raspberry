@@ -226,8 +226,10 @@ ssh "${SSH_USER}@${TARGET_PI_IP}" "sudo rm -rf /opt/rpi_eyes && sudo mkdir -p /o
 echo -e "${GREEN}✓ Old bundle removed and /opt/rpi_eyes recreated${NC}"
 
 # Copy the full release bundle (executable + data + lib) to the Pi.
+# A tar pipe is used because scp's directory semantics create a nested folder
+# when the source directory has a versioned name.
 echo "Copying new app bundle contents to /opt/rpi_eyes..."
-scp -r "$ARTIFACTS_DIR/" "${SSH_USER}@${TARGET_PI_IP}:/opt/rpi_eyes/" || {
+tar -czf - -C "$ARTIFACTS_DIR" . | ssh "${SSH_USER}@${TARGET_PI_IP}" "tar -xzf - -C /opt/rpi_eyes" || {
   echo -e "${RED}✗ Failed to copy app bundle to Pi${NC}"
   exit 1
 }
