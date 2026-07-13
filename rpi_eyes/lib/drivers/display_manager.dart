@@ -16,12 +16,18 @@ class DisplayManager {
   bool _initialized = false;
 
   Future<void> initialize() async {
-    if (_initialized) return;
+    if (_initialized) {
+      print('DisplayManager already initialized');
+      return;
+    }
 
+    print('DisplayManager: initializing left eye');
     await leftDriver.initialize();
+    print('DisplayManager: initializing right eye');
     await rightDriver.initialize(skipReset: true);
 
     _initialized = true;
+    print('DisplayManager: initialized');
   }
 
   Future<void> drawFromRenderObjects(
@@ -52,11 +58,17 @@ class DisplayManager {
   }
 
   Future<void> drawFromImages(ui.Image leftImage, ui.Image rightImage) async {
-    final leftBytes = await _imageToRgb565(leftImage);
-    final rightBytes = await _imageToRgb565(rightImage);
+    try {
+      final leftBytes = await _imageToRgb565(leftImage);
+      final rightBytes = await _imageToRgb565(rightImage);
 
-    leftDriver.drawBuffer(leftBytes);
-    rightDriver.drawBuffer(rightBytes);
+      leftDriver.drawBuffer(leftBytes);
+      rightDriver.drawBuffer(rightBytes);
+    } catch (e, st) {
+      print('ERROR in drawFromImages: $e');
+      print('Stack trace: $st');
+      rethrow;
+    }
   }
 
   Future<Uint8List> _imageToRgb565(ui.Image image) async {

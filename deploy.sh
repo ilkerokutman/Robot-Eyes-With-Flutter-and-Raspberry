@@ -14,7 +14,7 @@
 set -e
 
 # Default values
-BRANCH="pi5-support"
+BRANCH="main"
 BUILD_SERVER_IP="192.168.0.70"
 TARGET_PI_IP="192.168.0.81"
 SSH_USER="pi"

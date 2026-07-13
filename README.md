@@ -44,19 +44,32 @@ This project consists of two Flutter applications:
 
 | Wire Color | Function | Connectivity | Raspberry Pi Pin |
 |------------|----------|--------------|------------------|
-| Wire Color | Function | Connectivity | Raspberry Pi Pin |
-|------------|----------|--------------|------------------|
-| Yellow | CLK (Clock) | Shared | Pin 23 (SCLK) |
+| White | GND | Shared | Pin 6 / Pin 9 (GND) |
+| Purple | VCC (5V) | Shared | Pin 2 / Pin 4 (5V) |
+| Orange | CLK (Clock) | Shared | Pin 23 (SCLK) |
 | Green | DIN (Data) | Shared | Pin 19 (MOSI) |
-| Blue | RST (Reset) | Shared | Pin 22 (GPIO 25) |
-| White | DC (Data/Cmd) | Shared | Pin 18 (GPIO 24) |
-| Red | GND | Shared | Pin 6 / Pin 9 (GND) |
-| Black | VCC | Shared | Pin 2 / Pin 4 (5V) |
-| Purple | BL (Backlight) | Shared | Pin 1 / Pin 17 (3.3V) |
-| Orange | CS1 (Select) | **UNIQUE** | Disp 1 → Pin 24 (CE0 / BCM 8) |
-| Orange | CS2 (Select) | **UNIQUE** | Disp 2 → Pin 26 (CE1 / BCM 7) |
+| Brown | RST (Reset) | Shared | Pin 22 (GPIO 25) |
+| Blue | DC (Data/Cmd) | Shared | Pin 18 (GPIO 24) |
+| Yellow | CS1 (Select) | **UNIQUE** | Disp 1 → Pin 24 (CE0 / BCM 8) |
+| Yellow | CS2 (Select) | **UNIQUE** | Disp 2 → Pin 26 (CE1 / BCM 7) |
+| Grey | BL (Backlight) | Shared | Pin 1 / Pin 17 (3.3V) |
 
 > **Note:** All signals except CS (Chip Select) are shared between both displays. Each display requires its own CS line for independent control.
+
+### Cable Color Mapping (Old ST7789 → New GC9A01)
+
+If you are rewiring from the previous 0.96-inch ST7789 cable set, use this mapping:
+
+| Function | Old Color | New Color |
+|----------|-----------|-----------|
+| Ground | Red | White |
+| Power (5V) | Black | Purple |
+| Clock (SCLK) | Yellow | Orange |
+| Data (MOSI) | Green | Green |
+| Reset | Blue | Brown |
+| Data / Command | White | Blue |
+| Chip Select | Orange | Yellow |
+| Backlight | Purple | Grey |
 
 ## Software Setup
 

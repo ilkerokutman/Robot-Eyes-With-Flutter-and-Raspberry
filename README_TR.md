@@ -42,17 +42,32 @@ Bu proje iki Flutter uygulamasından oluşmaktadır:
 
 | Kablo Rengi | Fonksiyon | Bağlantı | Raspberry Pi Pin |
 |-------------|-----------|----------|------------------|
-| Sarı | CLK (Saat) | Paylaşımlı | Pin 23 (SCLK) |
+| Beyaz | GND | Paylaşımlı | Pin 6 / Pin 9 (GND) |
+| Mor | VCC (5V) | Paylaşımlı | Pin 2 / Pin 4 (5V) |
+| Turuncu | CLK (Saat) | Paylaşımlı | Pin 23 (SCLK) |
 | Yeşil | DIN (Veri) | Paylaşımlı | Pin 19 (MOSI) |
-| Mavi | RST (Reset) | Paylaşımlı | Pin 22 (GPIO 25) |
-| Beyaz | DC (Veri/Komut) | Paylaşımlı | Pin 18 (GPIO 24) |
-| Kırmızı | GND | Paylaşımlı | Pin 6 / Pin 9 (GND) |
-| Siyah | VCC | Paylaşımlı | Pin 2 / Pin 4 (5V) |
-| Mor | BL (Arka Işık) | Paylaşımlı | Pin 1 / Pin 17 (3.3V) |
-| Turuncu | CS1 (Seçim) | **AYRI** | Ekran 1 → Pin 24 (CE0 / BCM 8) |
-| Turuncu | CS2 (Seçim) | **AYRI** | Ekran 2 → Pin 26 (CE1 / BCM 7) |
+| Kahverengi | RST (Reset) | Paylaşımlı | Pin 22 (GPIO 25) |
+| Mavi | DC (Veri/Komut) | Paylaşımlı | Pin 18 (GPIO 24) |
+| Sarı | CS1 (Seçim) | **AYRI** | Ekran 1 → Pin 24 (CE0 / BCM 8) |
+| Sarı | CS2 (Seçim) | **AYRI** | Ekran 2 → Pin 26 (CE1 / BCM 7) |
+| Gri | BL (Arka Işık) | Paylaşımlı | Pin 1 / Pin 17 (3.3V) |
 
 > **Not:** CS (Chip Select) dışındaki tüm sinyaller her iki ekran arasında paylaşılmaktadır. Her ekran bağımsız kontrol için kendi CS hattına ihtiyaç duyar.
+
+### Kablo Rengi Eşleştirmesi (Eski ST7789 → Yeni GC9A01)
+
+Önceki 0.96 inç ST7789 kablo setinden yeniden kablolama yapıyorsanız bu eşleştirmeyi kullanın:
+
+| Fonksiyon | Eski Renk | Yeni Renk |
+|-----------|-----------|-----------|
+| Toprak | Kırmızı | Beyaz |
+| Güç (5V) | Siyah | Mor |
+| Saat (SCLK) | Sarı | Turuncu |
+| Veri (MOSI) | Yeşil | Yeşil |
+| Reset | Mavi | Kahverengi |
+| Veri / Komut | Beyaz | Mavi |
+| Chip Select | Turuncu | Sarı |
+| Arka Işık | Mor | Gri |
 
 ## Yazılım Kurulumu
 

@@ -52,11 +52,23 @@ class SharedGpio {
   bool _initialized = false;
 
   void initialize() {
-    if (_initialized) return;
+    if (_initialized) {
+      print('SharedGpio already initialized');
+      return;
+    }
 
-    _dcGpio = GPIO(DisplayConfig.dcPin, GPIOdirection.gpioDirOut);
-    _resetGpio = GPIO(DisplayConfig.resetPin, GPIOdirection.gpioDirOut);
-    _initialized = true;
+    try {
+      print('SharedGpio: opening DC pin ${DisplayConfig.dcPin}');
+      _dcGpio = GPIO(DisplayConfig.dcPin, GPIOdirection.gpioDirOut);
+      print('SharedGpio: opening Reset pin ${DisplayConfig.resetPin}');
+      _resetGpio = GPIO(DisplayConfig.resetPin, GPIOdirection.gpioDirOut);
+      _initialized = true;
+      print('SharedGpio initialized OK');
+    } catch (e, st) {
+      print('SharedGpio initialization FAILED: $e');
+      print('SharedGpio stack trace: $st');
+      rethrow;
+    }
   }
 
   GPIO get dcGpio {
@@ -95,25 +107,54 @@ class RealGc9a01Driver extends Gc9a01Driver {
   late final SPI _spi;
   bool _spiInitialized = false;
 
+  String get _name => 'GC9A01(CS$chipSelect)';
+
   void _initSpi() {
-    if (_spiInitialized) return;
-    _spi = SPI(
-      DisplayConfig.spiBus,
-      chipSelect,
-      SPImode.mode0,
-      DisplayConfig.spiSpeedHz,
-    );
-    _spiInitialized = true;
+    if (_spiInitialized) {
+      print('$_name SPI already initialized');
+      return;
+    }
+
+    try {
+      print(
+        '$_name opening SPI bus=${DisplayConfig.spiBus} '
+        'cs=$chipSelect mode=0 speed=${DisplayConfig.spiSpeedHz}',
+      );
+      _spi = SPI(
+        DisplayConfig.spiBus,
+        chipSelect,
+        SPImode.mode0,
+        DisplayConfig.spiSpeedHz,
+      );
+      _spiInitialized = true;
+      print('$_name SPI opened OK');
+    } catch (e, st) {
+      print('$_name SPI open FAILED: $e');
+      print('$_name stack trace: $st');
+      rethrow;
+    }
   }
 
   @override
   GpioPin get dcGpio {
-    return RealGpioPin(SharedGpio.instance.dcGpio, ownsPin: false);
+    try {
+      return RealGpioPin(SharedGpio.instance.dcGpio, ownsPin: false);
+    } catch (e, st) {
+      print('$_name dcGpio FAILED: $e');
+      print('$_name stack trace: $st');
+      rethrow;
+    }
   }
 
   @override
   GpioPin get resetGpio {
-    return RealGpioPin(SharedGpio.instance.resetGpio, ownsPin: false);
+    try {
+      return RealGpioPin(SharedGpio.instance.resetGpio, ownsPin: false);
+    } catch (e, st) {
+      print('$_name resetGpio FAILED: $e');
+      print('$_name stack trace: $st');
+      rethrow;
+    }
   }
 
   @override
@@ -124,8 +165,15 @@ class RealGc9a01Driver extends Gc9a01Driver {
 
   @override
   void dispose() {
+    print('$_name disposing SPI');
     if (_spiInitialized) {
-      _spi.dispose();
+      try {
+        _spi.dispose();
+        print('$_name SPI disposed OK');
+      } catch (e, st) {
+        print('$_name SPI dispose FAILED: $e');
+        print('$_name stack trace: $st');
+      }
     }
   }
 }
