@@ -3,13 +3,13 @@ class AppVersion {
   AppVersion._();
 
   /// Major version - incremented for incompatible API changes
-  static const int major = 2;
+  static const int major = 3;
 
   /// Minor version - incremented for backwards-compatible functionality additions
-  static const int minor = 2;
+  static const int minor = 0;
 
   /// Patch version - incremented for backwards-compatible bug fixes
-  static const int patch = 9;
+  static const int patch = 0;
 
   /// Full semantic version string (major.minor.patch)
   static const String full = '$major.$minor.$patch';

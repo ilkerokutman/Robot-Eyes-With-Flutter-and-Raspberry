@@ -183,16 +183,29 @@ echo ""
 echo -e "${YELLOW}[6/6] Deploying to target Pi...${NC}"
 
 # Stop a running instance so the bundle directory can be replaced cleanly.
-echo "Stopping any running ${PROJECT_NAME} process..."
-ssh "${SSH_USER}@${TARGET_PI_IP}" "pkill -f '/opt/rpi_eyes/${PROJECT_NAME}' || true"
-sleep 1
+echo "Checking for running ${PROJECT_NAME} process..."
+RUNNING_PID=$(ssh "${SSH_USER}@${TARGET_PI_IP}" "pgrep -f '/opt/rpi_eyes/${PROJECT_NAME}' || true" 2>/dev/null)
+if [[ -n "$RUNNING_PID" ]]; then
+  echo "Found running process(es): $RUNNING_PID. Stopping..."
+  ssh "${SSH_USER}@${TARGET_PI_IP}" "pkill -9 -f '/opt/rpi_eyes/${PROJECT_NAME}' || true" 2>/dev/null
+  sleep 2
+  STILL_RUNNING=$(ssh "${SSH_USER}@${TARGET_PI_IP}" "pgrep -f '/opt/rpi_eyes/${PROJECT_NAME}' || true" 2>/dev/null)
+  if [[ -n "$STILL_RUNNING" ]]; then
+    echo -e "${RED}✗ Could not stop running process(es): $STILL_RUNNING${NC}"
+    exit 1
+  fi
+  echo -e "${GREEN}✓ Running process stopped${NC}"
+else
+  echo "No running ${PROJECT_NAME} process found"
+fi
 
 # Remove old bundle completely so stale assets (version.json, .so files, fonts) are gone.
-echo "Removing old app bundle on Pi..."
-ssh "${SSH_USER}@${TARGET_PI_IP}" "rm -rf /opt/rpi_eyes" || {
+echo "Removing old app bundle on Pi (/opt/rpi_eyes)..."
+ssh "${SSH_USER}@${TARGET_PI_IP}" "rm -rf /opt/rpi_eyes" 2>/dev/null || {
   echo -e "${RED}✗ Failed to remove old bundle on Pi${NC}"
   exit 1
 }
+echo -e "${GREEN}✓ Old bundle removed${NC}"
 
 # Copy the full release bundle (executable + data + lib) to the Pi.
 echo "Copying new app bundle to Pi..."
@@ -200,13 +213,15 @@ scp -r "$ARTIFACTS_DIR/" "${SSH_USER}@${TARGET_PI_IP}:/opt/rpi_eyes" || {
   echo -e "${RED}✗ Failed to copy app bundle to Pi${NC}"
   exit 1
 }
+echo -e "${GREEN}✓ New bundle copied${NC}"
 
 # Ensure the main executable is executable.
-echo "Setting executable permissions..."
+echo "Setting executable permissions on /opt/rpi_eyes/${PROJECT_NAME}..."
 ssh "${SSH_USER}@${TARGET_PI_IP}" "chmod +x /opt/rpi_eyes/${PROJECT_NAME}" || {
   echo -e "${RED}✗ Failed to set permissions on Pi${NC}"
   exit 1
 }
+echo -e "${GREEN}✓ Permissions set${NC}"
 
 echo -e "${GREEN}✓ Deployment to Pi completed${NC}"
 echo ""
