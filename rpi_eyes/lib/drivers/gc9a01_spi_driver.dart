@@ -112,12 +112,12 @@ class RealGc9a01Driver extends Gc9a01Driver {
     try {
       print(
         '$_name opening SPI bus=${DisplayConfig.spiBus} '
-        'cs=$chipSelect mode=0 speed=${DisplayConfig.spiSpeedHz}',
+        'cs=$chipSelect mode=3 speed=${DisplayConfig.spiSpeedHz}',
       );
       _spi = SPI(
         DisplayConfig.spiBus,
         chipSelect,
-        SPImode.mode0,
+        SPImode.mode3,
         DisplayConfig.spiSpeedHz,
       );
       _spiInitialized = true;

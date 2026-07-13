@@ -219,15 +219,14 @@ abstract class Gc9a01Driver {
       _sendCommandRaw(0x74, [0x10, 0x85, 0x80, 0x00, 0x00, 0x4E, 0x00]);
       _sendCommandRaw(0x98, [0x3E, 0x07]);
 
-      // Tearing effect line on, display inversion on, common round LCD orientation.
+      // Final wakeup: tearing effect, inversion, sleep out, display on.
+      // No MADCTL — leave the controller default orientation.
       _sendCommand(Gc9a01Command.tearingEffectLineOn);
       _sendCommand(Gc9a01Command.invertOn);
-      _sendCommand(Gc9a01Command.memoryAccessControl, [0xC0]);
 
       _sendCommand(Gc9a01Command.sleepOut);
       await Future<void>.delayed(const Duration(milliseconds: 200));
 
-      _sendCommand(Gc9a01Command.normalModeOn);
       _sendCommand(Gc9a01Command.displayOn);
       await Future<void>.delayed(const Duration(milliseconds: 50));
       print('$_name init sequence sent successfully');
