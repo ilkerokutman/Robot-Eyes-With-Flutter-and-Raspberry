@@ -1,19 +1,18 @@
 # rpi_eyes
 
-The eyes display application for the Robot Eyes project. Runs on Raspberry Pi and renders animated robot eyes to dual ST7789 SPI displays.
+The eyes display application for the Robot Eyes project. Runs on Raspberry Pi and renders animated robot eyes to dual GC9A01 SPI round displays.
 
 ## Features
 
 - Animated robot eyes with 9 emotion states
-- Dual ST7789 SPI display support (240x240 each)
+- Dual GC9A01 SPI round display support (240x240 each)
 - WebSocket server for remote control
 - UDP broadcast for auto-discovery
 - Asynchronous blinking animation
 
-## Entry Points
+## Entry Point
 
-- `lib/main.dart` - Desktop/VNC mode (standard Flutter rendering)
-- `lib/main_spi.dart` - SPI display mode (renders to ST7789 displays)
+- `lib/main.dart` - Auto-detects platform: SPI mode on Raspberry Pi, desktop rendering elsewhere
 
 ## Build & Run
 
@@ -22,7 +21,7 @@ The eyes display application for the Robot Eyes project. Runs on Raspberry Pi an
 flutter run -d linux
 
 # SPI display mode (on Raspberry Pi)
-flutter build linux --release -t lib/main_spi.dart
+flutter build linux --release -t lib/main.dart
 ./build/linux/arm64/release/bundle/rpi_eyes
 ```
 

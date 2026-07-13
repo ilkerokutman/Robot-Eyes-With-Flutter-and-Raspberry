@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:dart_periphery/dart_periphery.dart';
 
 import 'package:rpi_eyes/drivers/display_config.dart';
-import 'package:rpi_eyes/drivers/st7789_driver.dart';
+import 'package:rpi_eyes/drivers/gc9a01_driver.dart';
 
 class RealGpioPin implements GpioPin {
   RealGpioPin(this._pin, {this.ownsPin = true});
@@ -40,7 +40,7 @@ class RealSpiDevice implements SpiDevice {
   }
 }
 
-/// Shared GPIO manager for displays with common DC/Reset pins
+/// Shared GPIO manager for displays with common DC/Reset pins.
 class SharedGpio {
   SharedGpio._();
 
@@ -54,7 +54,6 @@ class SharedGpio {
   void initialize() {
     if (_initialized) return;
 
-    // Try without explicit chip number first (Pi 4 style)
     _dcGpio = GPIO(DisplayConfig.dcPin, GPIOdirection.gpioDirOut);
     _resetGpio = GPIO(DisplayConfig.resetPin, GPIOdirection.gpioDirOut);
     _initialized = true;
@@ -80,8 +79,14 @@ class SharedGpio {
   }
 }
 
-class RealSt7789Driver extends St7789Driver {
-  RealSt7789Driver({
+/// Real hardware implementation of the GC9A01 driver using `dart_periphery`.
+///
+/// Each display creates its own SPI instance on the same bus with a different
+/// chip select:
+///   - Display 1: SPI(0, 0, SPI_MODE_0, 40000000)
+///   - Display 2: SPI(0, 1, SPI_MODE_0, 40000000)
+class RealGc9a01Driver extends Gc9a01Driver {
+  RealGc9a01Driver({
     required super.chipSelect,
     required super.dcPin,
     required super.resetPin,

@@ -81,7 +81,7 @@ export DISPLAY=:1
 1. **Flutter renders UI** to the display server (X11/Wayland)
 2. **RenderRepaintBoundary captures** the rendered pixels
 3. **RGB565Converter converts** RGBA to RGB565 format
-4. **SPI driver sends** pixel data to ST7789 controllers
+4. **SPI driver sends** pixel data to GC9A01 controllers
 5. **Displays show** the rendered content
 
 ## Debugging
@@ -174,5 +174,5 @@ Then the SPI displays should show the rendered eye animation.
 
 - [Xvfb Documentation](https://www.x.org/releases/X11R7.6/doc/man/man1/Xvfb.1.xhtml)
 - [Flutter Linux Desktop](https://docs.flutter.dev/platform-integration/linux/building)
-- [ST7789 Display Controller](https://www.lcdwiki.com/0.96inch_IPS_ST7789_Module)
+- [GC9A01 Display Controller - Waveshare 1.28inch LCD Module](https://www.waveshare.com/wiki/1.28inch_LCD_Module)
 - [Raspberry Pi GPIO](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html)

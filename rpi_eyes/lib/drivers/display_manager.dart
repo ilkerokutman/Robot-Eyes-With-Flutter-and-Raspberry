@@ -4,14 +4,14 @@ import 'dart:ui' as ui;
 import 'package:flutter/rendering.dart';
 
 import 'package:rpi_eyes/drivers/display_config.dart';
+import 'package:rpi_eyes/drivers/gc9a01_driver.dart';
 import 'package:rpi_eyes/drivers/rgb565_converter.dart';
-import 'package:rpi_eyes/drivers/st7789_driver.dart';
 
 class DisplayManager {
   DisplayManager({required this.leftDriver, required this.rightDriver});
 
-  final St7789Driver leftDriver;
-  final St7789Driver rightDriver;
+  final Gc9a01Driver leftDriver;
+  final Gc9a01Driver rightDriver;
 
   bool _initialized = false;
 

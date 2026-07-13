@@ -4,7 +4,7 @@ class DisplayConfig {
   const DisplayConfig._();
 
   static const int width = 240;
-  static const int height = 198;
+  static const int height = 240;
   static const int bytesPerPixel = 2;
   static const int bufferSize = width * height * bytesPerPixel;
 

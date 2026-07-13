@@ -1,5 +1,5 @@
 name: rpi_eyes
-description: "ST7789 SPI display driver for Raspberry Pi with Flutter UI rendering."
+description: "GC9A01 SPI round display driver for Raspberry Pi with Flutter UI rendering."
 publish_to: 'none'
 version: 2.2.4
 

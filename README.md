@@ -2,7 +2,7 @@
 
 [Türkçe için tıklayın](README_TR.md)
 
-A Flutter-based robot eyes display system for Raspberry Pi with ST7789 SPI displays.
+A Flutter-based robot eyes display system for Raspberry Pi with GC9A01 SPI round displays.
 
 
 ## Demo Videos
@@ -15,7 +15,7 @@ A Flutter-based robot eyes display system for Raspberry Pi with ST7789 SPI displ
 
 This project consists of two Flutter applications:
 
-- **rpi_eyes** - The eyes display application that runs on a Raspberry Pi and renders animated robot eyes to dual ST7789 SPI displays
+- **rpi_eyes** - The eyes display application that runs on a Raspberry Pi and renders animated robot eyes to dual GC9A01 SPI round displays
 - **rpi_eyes_control** - A control application (desktop/mobile) that connects to the eyes app via WebSocket to control emotions and gaze direction
 
 ![Control App](docs/control-app.jpg)
@@ -32,7 +32,7 @@ This project consists of two Flutter applications:
 ## Hardware Requirements
 
 ### Display
-- 2x [0.96inch IPS ST7789 Module](https://www.lcdwiki.com/0.96inch_IPS_ST7789_Module) (240x240 resolution)
+- 2x [Waveshare 1.28inch GC9A01 LCD Module](https://www.waveshare.com/wiki/1.28inch_LCD_Module) (240x240 resolution)
 - Raspberry Pi 4 or Pi 5 (auto-detected)
 
 ### Wiring
@@ -44,14 +44,17 @@ This project consists of two Flutter applications:
 
 | Wire Color | Function | Connectivity | Raspberry Pi Pin |
 |------------|----------|--------------|------------------|
-| Yellow | SCL (Clock) | Shared | Pin 23 (SCLK) |
-| Green | SDA (Data) | Shared | Pin 19 (MOSI) |
-| Blue | RES (Reset) | Shared | Pin 22 (GPIO 25) |
+| Wire Color | Function | Connectivity | Raspberry Pi Pin |
+|------------|----------|--------------|------------------|
+| Yellow | CLK (Clock) | Shared | Pin 23 (SCLK) |
+| Green | DIN (Data) | Shared | Pin 19 (MOSI) |
+| Blue | RST (Reset) | Shared | Pin 22 (GPIO 25) |
 | White | DC (Data/Cmd) | Shared | Pin 18 (GPIO 24) |
-| Red | GND | Shared | Pin 6 (GND) |
-| Black | VCC | Shared | Pin 2 (5V) |
-| Purple | BLK | Shared | Pin 1 (3.3V) |
-| Orange | CS (Select) | **UNIQUE** | Disp 1 → Pin 24 (CE0) / Disp 2 → Pin 26 (CE1) |
+| Red | GND | Shared | Pin 6 / Pin 9 (GND) |
+| Black | VCC | Shared | Pin 2 / Pin 4 (5V) |
+| Purple | BL (Backlight) | Shared | Pin 1 / Pin 17 (3.3V) |
+| Orange | CS1 (Select) | **UNIQUE** | Disp 1 → Pin 24 (CE0 / BCM 8) |
+| Orange | CS2 (Select) | **UNIQUE** | Disp 2 → Pin 26 (CE1 / BCM 7) |
 
 > **Note:** All signals except CS (Chip Select) are shared between both displays. Each display requires its own CS line for independent control.
 
@@ -84,7 +87,7 @@ This project consists of two Flutter applications:
 ```bash
 cd rpi_eyes
 flutter pub get
-flutter build linux --release -t lib/main_spi.dart
+flutter build linux --release -t lib/main.dart
 ```
 
 ### Running the Eyes App
@@ -135,11 +138,10 @@ eyes/
 ├── rpi_eyes/                 # Eyes display application
 │   ├── lib/
 │   │   ├── app/              # UI components
-│   │   ├── drivers/          # SPI/ST7789 drivers
+│   │   ├── drivers/          # SPI/GC9A01 drivers
 │   │   ├── models/           # Data models
 │   │   ├── services/         # WebSocket services
-│   │   ├── main.dart         # Desktop entry point
-│   │   └── main_spi.dart     # SPI display entry point
+│   │   └── main.dart         # Entry point (SPI on Pi, desktop elsewhere)
 │   └── ...
 ├── rpi_eyes_control/         # Control application
 │   ├── lib/
@@ -154,5 +156,5 @@ This project is open source and available under the [MIT License](LICENSE).
 
 ## Acknowledgments
 
-- Display module: [0.96inch IPS ST7789 Module](https://www.lcdwiki.com/0.96inch_IPS_ST7789_Module)
+- Display module: [Waveshare 1.28inch GC9A01 LCD Module](https://www.waveshare.com/wiki/1.28inch_LCD_Module)
 - Built with [Flutter](https://flutter.dev)

@@ -2,7 +2,7 @@
 
 [Click here for English](README.md)
 
-Raspberry Pi için ST7789 SPI ekranlarla Flutter tabanlı robot göz görüntüleme sistemi.
+Raspberry Pi için GC9A01 SPI yuvarlak ekranlarla Flutter tabanlı robot göz görüntüleme sistemi.
 
 ## Demo Videoları
 
@@ -14,7 +14,7 @@ Raspberry Pi için ST7789 SPI ekranlarla Flutter tabanlı robot göz görüntül
 
 Bu proje iki Flutter uygulamasından oluşmaktadır:
 
-- **rpi_eyes** - Raspberry Pi üzerinde çalışan ve çift ST7789 SPI ekranlara animasyonlu robot gözleri renderlayan göz görüntüleme uygulaması
+- **rpi_eyes** - Raspberry Pi üzerinde çalışan ve çift GC9A01 SPI yuvarlak ekranlara animasyonlu robot gözleri renderlayan göz görüntüleme uygulaması
 - **rpi_eyes_control** - WebSocket üzerinden göz uygulamasına bağlanarak duyguları ve bakış yönünü kontrol eden kontrol uygulaması (masaüstü/mobil)
 
 ![Kontrol Uygulaması](docs/control-app.jpg)
@@ -31,7 +31,7 @@ Bu proje iki Flutter uygulamasından oluşmaktadır:
 ## Donanım Gereksinimleri
 
 ### Ekran
-- 2x [0.96 inç IPS ST7789 Modül](https://www.lcdwiki.com/0.96inch_IPS_ST7789_Module) (240x240 çözünürlük)
+- 2x [Waveshare 1.28 inç GC9A01 LCD Modül](https://www.waveshare.com/wiki/1.28inch_LCD_Module) (240x240 çözünürlük)
 - Raspberry Pi 4 veya Pi 5 (otomatik algılanır)
 
 ### Kablolama
@@ -42,14 +42,15 @@ Bu proje iki Flutter uygulamasından oluşmaktadır:
 
 | Kablo Rengi | Fonksiyon | Bağlantı | Raspberry Pi Pin |
 |-------------|-----------|----------|------------------|
-| Sarı | SCL (Saat) | Paylaşımlı | Pin 23 (SCLK) |
-| Yeşil | SDA (Veri) | Paylaşımlı | Pin 19 (MOSI) |
-| Mavi | RES (Reset) | Paylaşımlı | Pin 22 (GPIO 25) |
+| Sarı | CLK (Saat) | Paylaşımlı | Pin 23 (SCLK) |
+| Yeşil | DIN (Veri) | Paylaşımlı | Pin 19 (MOSI) |
+| Mavi | RST (Reset) | Paylaşımlı | Pin 22 (GPIO 25) |
 | Beyaz | DC (Veri/Komut) | Paylaşımlı | Pin 18 (GPIO 24) |
-| Kırmızı | GND | Paylaşımlı | Pin 6 (GND) |
-| Siyah | VCC | Paylaşımlı | Pin 2 (5V) |
-| Mor | BLK | Paylaşımlı | Pin 1 (3.3V) |
-| Turuncu | CS (Seçim) | **AYRI** | Ekran 1 → Pin 24 (CE0) / Ekran 2 → Pin 26 (CE1) |
+| Kırmızı | GND | Paylaşımlı | Pin 6 / Pin 9 (GND) |
+| Siyah | VCC | Paylaşımlı | Pin 2 / Pin 4 (5V) |
+| Mor | BL (Arka Işık) | Paylaşımlı | Pin 1 / Pin 17 (3.3V) |
+| Turuncu | CS1 (Seçim) | **AYRI** | Ekran 1 → Pin 24 (CE0 / BCM 8) |
+| Turuncu | CS2 (Seçim) | **AYRI** | Ekran 2 → Pin 26 (CE1 / BCM 7) |
 
 > **Not:** CS (Chip Select) dışındaki tüm sinyaller her iki ekran arasında paylaşılmaktadır. Her ekran bağımsız kontrol için kendi CS hattına ihtiyaç duyar.
 
@@ -82,7 +83,7 @@ Bu proje iki Flutter uygulamasından oluşmaktadır:
 ```bash
 cd rpi_eyes
 flutter pub get
-flutter build linux --release -t lib/main_spi.dart
+flutter build linux --release -t lib/main.dart
 ```
 
 ### Göz Uygulamasını Çalıştırma
@@ -133,11 +134,10 @@ eyes/
 ├── rpi_eyes/                 # Göz görüntüleme uygulaması
 │   ├── lib/
 │   │   ├── app/              # UI bileşenleri
-│   │   ├── drivers/          # SPI/ST7789 sürücüleri
+│   │   ├── drivers/          # SPI/GC9A01 sürücüleri
 │   │   ├── models/           # Veri modelleri
 │   │   ├── services/         # WebSocket servisleri
-│   │   ├── main.dart         # Masaüstü giriş noktası
-│   │   └── main_spi.dart     # SPI ekran giriş noktası
+│   │   └── main.dart         # Giriş noktası (Pi'de SPI, masaüstünde render)
 │   └── ...
 ├── rpi_eyes_control/         # Kontrol uygulaması
 │   ├── lib/
@@ -152,5 +152,5 @@ Bu proje açık kaynaklıdır ve [MIT Lisansı](LICENSE) altında kullanılabili
 
 ## Teşekkürler
 
-- Ekran modülü: [0.96 inç IPS ST7789 Modül](https://www.lcdwiki.com/0.96inch_IPS_ST7789_Module)
+- Ekran modülü: [Waveshare 1.28 inç GC9A01 LCD Modül](https://www.waveshare.com/wiki/1.28inch_LCD_Module)
 - [Flutter](https://flutter.dev) ile geliştirilmiştir

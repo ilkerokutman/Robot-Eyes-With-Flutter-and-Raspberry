@@ -8,7 +8,7 @@ import 'package:rpi_eyes/app/screen/home_spi.dart';
 import 'package:rpi_eyes/core/version.dart';
 import 'package:rpi_eyes/drivers/display_config.dart';
 import 'package:rpi_eyes/drivers/display_manager.dart';
-import 'package:rpi_eyes/drivers/st7789_spi_driver.dart';
+import 'package:rpi_eyes/drivers/gc9a01_spi_driver.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -54,12 +54,12 @@ Future<void> _runRaspberryPi() async {
     // Attempt to initialize SPI displays
     try {
       displayManager = DisplayManager(
-        leftDriver: RealSt7789Driver(
+        leftDriver: RealGc9a01Driver(
           chipSelect: DisplayConfig.leftEyeChipSelect,
           dcPin: DisplayConfig.dcPin,
           resetPin: DisplayConfig.resetPin,
         ),
-        rightDriver: RealSt7789Driver(
+        rightDriver: RealGc9a01Driver(
           chipSelect: DisplayConfig.rightEyeChipSelect,
           dcPin: DisplayConfig.dcPin,
           resetPin: DisplayConfig.resetPin,
