@@ -173,7 +173,7 @@ echo ""
 # Step 5: Deploy to target Pi
 echo -e "${YELLOW}[5/5] Deploying to target Pi...${NC}"
 echo "Copying executable to Pi..."
-scp "$ARTIFACTS_DIR/${PROJECT_NAME}" "${SSH_USER}@${TARGET_PI_IP}:/opt/eyes/${PROJECT_NAME}" || {
+scp "$ARTIFACTS_DIR/${PROJECT_NAME}" "${SSH_USER}@${TARGET_PI_IP}:/opt/rpi_eyes/${PROJECT_NAME}" || {
   echo -e "${RED}✗ Failed to copy executable to Pi${NC}"
   exit 1
 }
