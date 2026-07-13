@@ -216,12 +216,14 @@ fi
 set -e
 
 # Remove old bundle completely so stale assets (version.json, .so files, fonts) are gone.
+# /opt is owned by root, so we use sudo to recreate the app directory and hand
+# ownership back to the deploy user for the subsequent scp/chmod steps.
 echo "Removing old app bundle on Pi (/opt/rpi_eyes)..."
-ssh "${SSH_USER}@${TARGET_PI_IP}" "rm -rf /opt/rpi_eyes" || {
-  echo -e "${RED}✗ Failed to remove old bundle on Pi${NC}"
+ssh "${SSH_USER}@${TARGET_PI_IP}" "sudo rm -rf /opt/rpi_eyes && sudo mkdir -p /opt/rpi_eyes && sudo chown ${SSH_USER}:${SSH_USER} /opt/rpi_eyes" || {
+  echo -e "${RED}✗ Failed to remove / recreate /opt/rpi_eyes on Pi (sudo required)${NC}"
   exit 1
 }
-echo -e "${GREEN}✓ Old bundle removed${NC}"
+echo -e "${GREEN}✓ Old bundle removed and /opt/rpi_eyes recreated${NC}"
 
 # Copy the full release bundle (executable + data + lib) to the Pi.
 echo "Copying new app bundle to Pi..."
