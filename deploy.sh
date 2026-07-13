@@ -179,7 +179,7 @@ scp "$ARTIFACTS_DIR/${PROJECT_NAME}" "${SSH_USER}@${TARGET_PI_IP}:/opt/rpi_eyes/
 }
 
 echo "Setting executable permissions..."
-ssh "${SSH_USER}@${TARGET_PI_IP}" "chmod +x /opt/eyes/${PROJECT_NAME}" || {
+ssh "${SSH_USER}@${TARGET_PI_IP}" "chmod +x /opt/rpi_eyes/${PROJECT_NAME}" || {
   echo -e "${RED}✗ Failed to set permissions on Pi${NC}"
   exit 1
 }
@@ -194,8 +194,8 @@ echo -e "${GREEN}========================================${NC}"
 echo -e "Version:          ${YELLOW}$VERSION${NC}"
 echo -e "Branch:           ${YELLOW}$BRANCH${NC}"
 echo -e "Artifacts:        ${YELLOW}$ARTIFACTS_DIR${NC}"
-echo -e "Deployed to:      ${YELLOW}${SSH_USER}@${TARGET_PI_IP}:/opt/eyes/${PROJECT_NAME}${NC}"
+echo -e "Deployed to:      ${YELLOW}${SSH_USER}@${TARGET_PI_IP}:/opt/rpi_eyes/${PROJECT_NAME}${NC}"
 echo ""
 echo "To test the deployment, run:"
-echo -e "  ${BLUE}ssh ${SSH_USER}@${TARGET_PI_IP} 'cd /opt/eyes && ./${PROJECT_NAME}'${NC}"
+echo -e "  ${BLUE}ssh ${SSH_USER}@${TARGET_PI_IP} 'cd /opt/rpi_eyes && ./${PROJECT_NAME}'${NC}"
 echo ""
