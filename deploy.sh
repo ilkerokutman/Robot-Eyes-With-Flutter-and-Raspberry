@@ -226,8 +226,8 @@ ssh "${SSH_USER}@${TARGET_PI_IP}" "sudo rm -rf /opt/rpi_eyes && sudo mkdir -p /o
 echo -e "${GREEN}✓ Old bundle removed and /opt/rpi_eyes recreated${NC}"
 
 # Copy the full release bundle (executable + data + lib) to the Pi.
-echo "Copying new app bundle to Pi..."
-scp -r "$ARTIFACTS_DIR/" "${SSH_USER}@${TARGET_PI_IP}:/opt/rpi_eyes" || {
+echo "Copying new app bundle contents to /opt/rpi_eyes..."
+scp -r "$ARTIFACTS_DIR/" "${SSH_USER}@${TARGET_PI_IP}:/opt/rpi_eyes/" || {
   echo -e "${RED}✗ Failed to copy app bundle to Pi${NC}"
   exit 1
 }
