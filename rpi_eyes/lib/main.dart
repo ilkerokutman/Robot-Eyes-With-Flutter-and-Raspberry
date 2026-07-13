@@ -1,11 +1,11 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'package:rpi_eyes/app/app.dart';
 import 'package:rpi_eyes/app/screen/home_spi.dart';
-import 'package:rpi_eyes/core/version.dart';
 import 'package:rpi_eyes/drivers/display_config.dart';
 import 'package:rpi_eyes/drivers/display_manager.dart';
 import 'package:rpi_eyes/drivers/gc9a01_spi_driver.dart';
@@ -23,12 +23,13 @@ void main() async {
 }
 
 Future<void> _runDesktop() async {
-  print('Robot Eyes v${AppVersion.full} | Desktop');
+  final packageInfo = await PackageInfo.fromPlatform();
+  print('Robot Eyes v${packageInfo.version} | Desktop');
 
   await windowManager.ensureInitialized();
 
   const windowOptions = WindowOptions(
-    size: const Size(480, 240),
+    size: Size(480, 240),
     center: true,
     skipTaskbar: false,
     fullScreen: false,
@@ -46,11 +47,14 @@ Future<void> _runDesktop() async {
 
 Future<void> _runRaspberryPi() async {
   try {
+    final packageInfo = await PackageInfo.fromPlatform();
+
     // Detect platform and SPI availability
     final piVersion = DisplayConfig.isPi5 ? 'Pi 5' : 'Pi 4';
     DisplayManager? displayManager;
     bool spiAvailable = false;
 
+    print('Robot Eyes v${packageInfo.version} | $piVersion | starting...');
     print('Initializing GC9A01 SPI displays...');
 
     // Attempt to initialize SPI displays
@@ -78,7 +82,7 @@ Future<void> _runRaspberryPi() async {
 
     // Print startup info
     final spiStatus = spiAvailable ? 'OK' : 'NOK';
-    print('Robot Eyes v${AppVersion.full} | $piVersion | SPI: $spiStatus');
+    print('Robot Eyes v${packageInfo.version} | $piVersion | SPI: $spiStatus');
 
     // Run appropriate app
     if (spiAvailable && displayManager != null) {

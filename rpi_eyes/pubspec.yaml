@@ -1,7 +1,7 @@
 name: rpi_eyes
 description: "GC9A01 SPI round display driver for Raspberry Pi with Flutter UI rendering."
 publish_to: 'none'
-version: 2.2.6
+version: 2.2.8
 
 environment:
   sdk: ^3.10.8
@@ -10,6 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   dart_periphery: ^0.9.20
+  package_info_plus: ^8.0.0
   web_socket_channel: ^3.0.3
   window_manager: ^0.5.1
 

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import 'package:rpi_eyes/app/core/enums.dart';
 import 'package:rpi_eyes/app/widgets/eye_widget.dart';
@@ -52,6 +53,13 @@ class _HomeSpiScreenState extends State<HomeSpiScreen> {
   void initState() {
     super.initState();
     _startRenderLoop();
+    _delayedServerStartup();
+  }
+
+  Future<void> _delayedServerStartup() async {
+    // Give DisplayManager / SPI displays a short moment to settle before
+    // opening the WebSocket control port.
+    await Future.delayed(const Duration(milliseconds: 500));
     _startServer();
     _startBroadcast();
   }
@@ -184,6 +192,8 @@ class _HomeSpiScreenState extends State<HomeSpiScreen> {
       _udpSocket = await RawDatagramSocket.bind(InternetAddress.anyIPv4, 0);
       _udpSocket!.broadcastEnabled = true;
 
+      final packageInfo = await PackageInfo.fromPlatform();
+
       _broadcastTimer = Timer.periodic(const Duration(seconds: 2), (_) {
         if (_localIp == null) return;
 
@@ -191,7 +201,7 @@ class _HomeSpiScreenState extends State<HomeSpiScreen> {
           'service': 'rpi_eyes',
           'ip': _localIp,
           'port': widget.port,
-          'version': '2.2.3',
+          'version': packageInfo.version,
         });
 
         _udpSocket!.send(

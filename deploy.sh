@@ -68,7 +68,7 @@ while [[ $# -gt 0 ]]; do
       echo "Usage: $0 [OPTIONS]"
       echo ""
       echo "Options:"
-      echo "  -b, --branch BRANCH           Git branch to deploy (default: pi5-support)"
+      echo "  -b, --branch BRANCH           Git branch to deploy (default: $BRANCH)"
       echo "  -bs, --build-server IP        Build server IP (default: 192.168.0.70)"
       echo "  -tp, --target-pi IP           Target Pi IP (default: 192.168.0.116)"
       echo "  -u, --user USER               SSH user (default: pi)"
@@ -76,7 +76,7 @@ while [[ $# -gt 0 ]]; do
       echo "  -h, --help                    Show this help message"
       echo ""
       echo "Examples:"
-      echo "  $0                                    # Deploy pi5-support with auto-parsed version"
+      echo "  $0                                    # Deploy $BRANCH with auto-parsed version"
       echo "  $0 -b main                           # Deploy main branch with auto-parsed version"
       echo "  $0 -v 2.0.0                          # Override version to 2.0.0"
       echo "  $0 -bs 192.168.1.10 -tp 192.168.1.20 # Deploy to custom IPs"
@@ -109,7 +109,7 @@ echo -e "${BLUE}========================================${NC}"
 echo ""
 
 # Step 1: Commit and sync from macOS
-echo -e "${YELLOW}[1/5] Committing changes and syncing to GitHub...${NC}"
+echo -e "${YELLOW}[1/6] Committing changes and syncing to GitHub...${NC}"
 cd "$SCRIPT_DIR"
 if [[ -n $(git status -s) ]]; then
   echo "Staging all changes..."
@@ -125,7 +125,7 @@ fi
 echo ""
 
 # Step 2: Fetch and pull on build server
-echo -e "${YELLOW}[2/5] Fetching and pulling on build server...${NC}"
+echo -e "${YELLOW}[2/6] Fetching and pulling on build server...${NC}"
 ssh "${SSH_USER}@${BUILD_SERVER_IP}" "cd ~/Robot-Eyes-With-Flutter-and-Raspberry && git fetch origin && git checkout ${BRANCH} && git pull origin ${BRANCH}" || {
   echo -e "${RED}✗ Failed to fetch/pull on build server${NC}"
   exit 1
@@ -133,17 +133,26 @@ ssh "${SSH_USER}@${BUILD_SERVER_IP}" "cd ~/Robot-Eyes-With-Flutter-and-Raspberry
 echo -e "${GREEN}✓ Build server updated${NC}"
 echo ""
 
-# Step 3: Trigger build on build server
-echo -e "${YELLOW}[3/5] Building on build server...${NC}"
-ssh "${SSH_USER}@${BUILD_SERVER_IP}" "cd ~/Robot-Eyes-With-Flutter-and-Raspberry/${PROJECT_NAME} && rm -rf build .dart_tool && /opt/flutter/bin/flutter clean && /opt/flutter/bin/flutter pub get && /opt/flutter/bin/flutter build linux --release" || {
+# Step 3: Clean and fetch dependencies on build server
+echo -e "${YELLOW}[3/6] Cleaning and running pub get on build server...${NC}"
+ssh "${SSH_USER}@${BUILD_SERVER_IP}" "cd ~/Robot-Eyes-With-Flutter-and-Raspberry/${PROJECT_NAME} && rm -rf build .dart_tool && /opt/flutter/bin/flutter clean && /opt/flutter/bin/flutter pub get" || {
+  echo -e "${RED}✗ Clean / pub get failed on build server${NC}"
+  exit 1
+}
+echo -e "${GREEN}✓ Clean and pub get completed successfully${NC}"
+echo ""
+
+# Step 4: Trigger build on build server
+echo -e "${YELLOW}[4/6] Building on build server...${NC}"
+ssh "${SSH_USER}@${BUILD_SERVER_IP}" "cd ~/Robot-Eyes-With-Flutter-and-Raspberry/${PROJECT_NAME} && /opt/flutter/bin/flutter build linux --release" || {
   echo -e "${RED}✗ Build failed on build server${NC}"
   exit 1
 }
 echo -e "${GREEN}✓ Build completed successfully${NC}"
 echo ""
 
-# Step 4: Copy bundle to workspace artifacts
-echo -e "${YELLOW}[4/5] Copying bundle to workspace artifacts...${NC}"
+# Step 5: Copy bundle to workspace artifacts
+echo -e "${YELLOW}[5/6] Copying bundle to workspace artifacts...${NC}"
 ARTIFACTS_DIR="$SCRIPT_DIR/artifacts/${PROJECT_NAME}_${VERSION}"
 
 # Remove existing artifacts directory if it exists
@@ -170,8 +179,8 @@ fi
 echo -e "${GREEN}✓ Artifacts copied to: $ARTIFACTS_DIR${NC}"
 echo ""
 
-# Step 5: Deploy to target Pi
-echo -e "${YELLOW}[5/5] Deploying to target Pi...${NC}"
+# Step 6: Deploy to target Pi
+echo -e "${YELLOW}[6/6] Deploying to target Pi...${NC}"
 echo "Copying executable to Pi..."
 scp "$ARTIFACTS_DIR/${PROJECT_NAME}" "${SSH_USER}@${TARGET_PI_IP}:/opt/rpi_eyes/${PROJECT_NAME}" || {
   echo -e "${RED}✗ Failed to copy executable to Pi${NC}"
@@ -185,6 +194,22 @@ ssh "${SSH_USER}@${TARGET_PI_IP}" "chmod +x /opt/rpi_eyes/${PROJECT_NAME}" || {
 }
 
 echo -e "${GREEN}✓ Deployment to Pi completed${NC}"
+echo ""
+
+# Verify deployed version by running binary briefly and capturing startup line
+echo -e "${YELLOW}Verifying deployed version...${NC}"
+DEPLOYED_VERSION_LINE=$(ssh "${SSH_USER}@${TARGET_PI_IP}" "timeout 5 /opt/rpi_eyes/${PROJECT_NAME} 2>&1 | grep -E 'Robot Eyes v[0-9]+\.[0-9]+\.[0-9]+' | head -n 1" || true)
+if [[ -n "$DEPLOYED_VERSION_LINE" ]]; then
+  echo -e "${GREEN}✓ Deployed binary reports: $DEPLOYED_VERSION_LINE${NC}"
+  if [[ "$DEPLOYED_VERSION_LINE" == *"v$VERSION"* ]]; then
+    echo -e "${GREEN}✓ Version matches expected $VERSION${NC}"
+  else
+    echo -e "${RED}✗ Version mismatch! Expected v$VERSION but got: $DEPLOYED_VERSION_LINE${NC}"
+    exit 1
+  fi
+else
+  echo -e "${YELLOW}⚠ Could not verify deployed version (binary may need a display to start)${NC}"
+fi
 echo ""
 
 # Summary
