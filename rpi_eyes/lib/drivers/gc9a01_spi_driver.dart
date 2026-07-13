@@ -52,10 +52,7 @@ class SharedGpio {
   bool _initialized = false;
 
   void initialize() {
-    if (_initialized) {
-      print('SharedGpio already initialized');
-      return;
-    }
+    if (_initialized) return;
 
     try {
       print('SharedGpio: opening DC pin ${DisplayConfig.dcPin}');
@@ -110,10 +107,7 @@ class RealGc9a01Driver extends Gc9a01Driver {
   String get _name => 'GC9A01(CS$chipSelect)';
 
   void _initSpi() {
-    if (_spiInitialized) {
-      print('$_name SPI already initialized');
-      return;
-    }
+    if (_spiInitialized) return;
 
     try {
       print(
