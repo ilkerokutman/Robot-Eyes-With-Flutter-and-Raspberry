@@ -8,8 +8,8 @@ class DisplayConfig {
   static const int bytesPerPixel = 2;
   static const int bufferSize = width * height * bytesPerPixel;
 
-  // 8 MHz for better frame rate. Lower to 4/2/1 MHz if the image corrupts.
-  static const int spiSpeedHz = 8000000;
+  // 4 MHz was stable with a single display; raise cautiously once dual works.
+  static const int spiSpeedHz = 4000000;
   static const int spiBus = 0;
 
   // CS: Pin 24 = CE0, Pin 26 = CE1
