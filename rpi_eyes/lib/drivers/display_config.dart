@@ -8,19 +8,19 @@ class DisplayConfig {
   static const int bytesPerPixel = 2;
   static const int bufferSize = width * height * bytesPerPixel;
 
-  // Conservative 5 MHz for jumper-wire wiring. Raise once display is stable.
-  static const int spiSpeedHz = 5000000;
+  // Very conservative 1 MHz for long jumper-wire wiring. Raise once stable.
+  static const int spiSpeedHz = 1000000;
   static const int spiBus = 0;
 
   // CS: Pin 24 = CE0, Pin 26 = CE1
   static const int leftEyeChipSelect = 0; // CE0 (Pin 24)
   static const int rightEyeChipSelect = 1; // CE1 (Pin 26)
 
-  // DC (Data/Command): Pin 18 = GPIO 24 (shared)
-  static const int dcPin = 24;
+  // DC (Data/Command): Pin 22 = GPIO 25 (shared)
+  static const int dcPin = 25;
 
-  // Reset: Pin 22 = GPIO 25 (shared)
-  static const int resetPin = 25;
+  // Reset: Pin 13 = GPIO 27 (shared)
+  static const int resetPin = 27;
 
   /// GPIO chip number - on Pi 5, gpiochip4 is a symlink to gpiochip0
   /// Both Pi 4 and Pi 5 use chip 0 for main GPIO
