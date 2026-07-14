@@ -91,9 +91,7 @@ class SharedGpio {
 /// Real hardware implementation of the GC9A01 driver using `dart_periphery`.
 ///
 /// Each display creates its own SPI instance on the same bus with a different
-/// chip select:
-///   - Display 1: SPI(0, 0, SPI_MODE_0, 40000000)
-///   - Display 2: SPI(0, 1, SPI_MODE_0, 40000000)
+/// chip select. Speed/mode are read from [DisplayConfig] at runtime.
 class RealGc9a01Driver extends Gc9a01Driver {
   RealGc9a01Driver({
     required super.chipSelect,

@@ -44,17 +44,21 @@ This project consists of two Flutter applications:
 
 | Wire Color | Function | Connectivity | Raspberry Pi Pin |
 |------------|----------|--------------|------------------|
+| Purple | VCC (3.3V) | Shared | Pin 1 / Pin 17 (3.3V) |
 | White | GND | Shared | Pin 6 / Pin 9 (GND) |
-| Purple | VCC (5V) | Shared | Pin 2 / Pin 4 (5V) |
-| Orange | CLK (Clock) | Shared | Pin 23 (SCLK) |
-| Green | DIN (Data) | Shared | Pin 19 (MOSI) |
-| Brown | RST (Reset) | Shared | Pin 22 (GPIO 25) |
-| Blue | DC (Data/Cmd) | Shared | Pin 18 (GPIO 24) |
+| Orange | CLK (Clock) | Shared | Pin 23 (SCLK / BCM 11) |
+| Green | DIN (Data) | Shared | Pin 19 (MOSI / BCM 10) |
+| Blue | DC (Data/Cmd) | Shared | Pin 22 (GPIO 25) |
+| Brown | RST (Reset) | Shared | Pin 13 (GPIO 27) |
 | Yellow | CS1 (Select) | **UNIQUE** | Disp 1 → Pin 24 (CE0 / BCM 8) |
 | Yellow | CS2 (Select) | **UNIQUE** | Disp 2 → Pin 26 (CE1 / BCM 7) |
-| Grey | BL (Backlight) | Shared | Pin 1 / Pin 17 (3.3V) |
+| Grey | BL (Backlight) | Shared | Pin 12 (GPIO 18) |
 
 > **Note:** All signals except CS (Chip Select) are shared between both displays. Each display requires its own CS line for independent control.
+>
+> **Note:** The module also accepts 5V on VCC, but the Waveshare example wiring above uses the 3.3V pin (Pin 1). The pins shown match the official Waveshare 1.28" LCD Module Raspberry Pi wiring.
+>
+> **Note:** With long jumper wires, keep SPI speed at 1 MHz. Higher speeds cause garbled/corrupted images.
 
 ### Cable Color Mapping (Old ST7789 → New GC9A01)
 
@@ -63,11 +67,11 @@ If you are rewiring from the previous 0.96-inch ST7789 cable set, use this mappi
 | Function | Old Color | New Color |
 |----------|-----------|-----------|
 | Ground | Red | White |
-| Power (5V) | Black | Purple |
+| Power | Black | Purple |
 | Clock (SCLK) | Yellow | Orange |
 | Data (MOSI) | Green | Green |
-| Reset | Blue | Brown |
 | Data / Command | White | Blue |
+| Reset | Blue | Brown |
 | Chip Select | Orange | Yellow |
 | Backlight | Purple | Grey |
 

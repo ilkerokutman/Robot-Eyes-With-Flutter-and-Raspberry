@@ -8,8 +8,9 @@ class DisplayConfig {
   static const int bytesPerPixel = 2;
   static const int bufferSize = width * height * bytesPerPixel;
 
-  // Very conservative 1 MHz for long jumper-wire wiring. Raise once stable.
-  static const int spiSpeedHz = 1000000;
+  // 4 MHz balances speed and signal integrity with jumper-wire wiring.
+  // Lower to 2 MHz or 1 MHz if the image becomes garbled.
+  static const int spiSpeedHz = 4000000;
   static const int spiBus = 0;
 
   // CS: Pin 24 = CE0, Pin 26 = CE1

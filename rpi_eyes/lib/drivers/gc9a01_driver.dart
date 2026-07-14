@@ -219,10 +219,10 @@ abstract class Gc9a01Driver {
       _sendCommandRaw(0x74, [0x10, 0x85, 0x80, 0x00, 0x00, 0x4E, 0x00]);
       _sendCommandRaw(0x98, [0x3E, 0x07]);
 
-      // Final wakeup: tearing effect, inversion, sleep out, display on.
-      // No MADCTL — leave the controller default orientation.
+      // Final wakeup: tearing effect, inversion, BGR color order, sleep out, display on.
       _sendCommand(Gc9a01Command.tearingEffectLineOn);
       _sendCommand(Gc9a01Command.invertOn);
+      _sendCommand(Gc9a01Command.memoryAccessControl, [0x08]);
 
       _sendCommand(Gc9a01Command.sleepOut);
       await Future<void>.delayed(const Duration(milliseconds: 200));
